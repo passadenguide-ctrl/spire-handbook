@@ -102,23 +102,31 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
             </div>
           )}
 
-          {/* Hero Image if present */}
+          {/* Hero Image if present - fitted frame hugging the artwork */}
           {image && (
-            <div className="my-6 rounded-xl overflow-hidden border border-[#3e2f18] bg-[#040609] shadow-2xl">
-              <div className="relative max-h-[500px] flex items-center justify-center overflow-hidden">
+            <figure
+              className={`my-6 mx-auto w-fit max-w-full rounded-2xl overflow-hidden border-2 transition-all duration-300 flex flex-col items-center bg-[#07090e] ${
+                id.includes('lekole')
+                  ? 'border-[#780016] shadow-[0_12px_40px_rgba(120,0,22,0.3)]'
+                  : id.includes('lombre')
+                  ? 'border-[#4a2868] shadow-[0_12px_40px_rgba(74,40,104,0.3)]'
+                  : 'border-[#5c441c] shadow-[0_12px_40px_rgba(92,68,28,0.3)]'
+              }`}
+            >
+              <div className="relative overflow-hidden flex items-center justify-center">
                 <img
                   src={image.url}
                   alt={image.alt || title}
-                  className="w-full h-auto object-contain max-h-[480px] hover:scale-[1.01] transition-transform duration-500"
+                  className="max-w-full max-h-[560px] w-auto h-auto block object-contain transition-transform duration-500 hover:scale-[1.01]"
                   loading="lazy"
                 />
               </div>
               {image.caption && (
-                <div className="px-4 py-2.5 bg-[#0b0e15] text-[11px] text-[#938b7e] font-body text-center border-t border-[#1e1a12]">
+                <figcaption className="w-full px-4 py-2 bg-[#0a0d14] text-xs text-[#958e81] font-heading tracking-wide text-center border-t border-[#1e170e]">
                   {image.caption}
-                </div>
+                </figcaption>
               )}
-            </div>
+            </figure>
           )}
 
           {/* Lead Paragraph */}
