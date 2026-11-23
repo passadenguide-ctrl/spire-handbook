@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="100%" height="100%" opacity="0.07">
+  <defs>
+    <!-- Mosaic Tile Pattern -->
+    <pattern id="mosaicGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 30,0 L 60,30 L 30,60 L 0,30 Z" fill="none" stroke="#c59b27" stroke-width="0.8" opacity="0.3"/>
+      <path d="M 0,0 L 30,30 L 60,0 M 0,60 L 30,30 L 60,60" fill="none" stroke="#780016" stroke-width="0.5" opacity="0.25"/>
+      <circle cx="30" cy="30" r="1.5" fill="#c59b27" opacity="0.4"/>
+    </pattern>
+
+    <!-- Gradients -->
+    <radialGradient id="goddessHalo" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#c59b27" stop-opacity="0.8"/>
+      <stop offset="40%" stop-color="#780016" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#1a0a14" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="silverMaskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#94a3b8" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#475569" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <linearGradient id="goldGleam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Mosaic Background -->
+  <rect width="1200" height="1200" fill="url(#mosaicGrid)" />
+
+  <!-- Cathedral Gothic Arch Outer Frame -->
+  <g transform="translate(600, 600)">
+    <!-- Halo of the Goddess -->
+    <circle cx="0" cy="-50" r="380" fill="url(#goddessHalo)" />
+
+    <!-- Occult Astrolabe / Dieselpunk Wheel of the Spire -->
+    <circle cx="0" cy="-50" r="340" fill="none" stroke="#c59b27" stroke-width="2" stroke-dasharray="8 4" opacity="0.6"/>
+    <circle cx="0" cy="-50" r="320" fill="none" stroke="#780016" stroke-width="3" opacity="0.7"/>
+    <circle cx="0" cy="-50" r="280" fill="none" stroke="#c59b27" stroke-width="1.5" opacity="0.5"/>
+    <circle cx="0" cy="-50" r="220" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="16 8" opacity="0.6"/>
+
+    <!-- 12 Radiating Spokes (Clockwork / Dieselpunk Cathedral Rose) -->
+    <g opacity="0.4" stroke="#c59b27" stroke-width="1.5">
+      <line x1="0" y1="-390" x2="0" y2="290"/>
+      <line x1="-340" y1="-50" x2="340" y2="-50"/>
+      <line x1="-240" y1="-290" x2="240" y2="190"/>
+      <line x1="240" y1="-290" x2="-240" y2="190"/>
+      <line x1="-290" y1="-170" x2="290" y2="70"/>
+      <line x1="290" y1="-170" x2="-290" y2="70"/>
+    </g>
+
+    <!-- Triple Moon Phases (Maiden, Mother, Crone - Waxing, Full, Waning) -->
+    <!-- Full Moon / Halo Center -->
+    <circle cx="0" cy="-240" r="45" fill="none" stroke="#f1f5f9" stroke-width="3" opacity="0.8"/>
+    <circle cx="0" cy="-240" r="35" fill="#f1f5f9" opacity="0.15"/>
+
+    <!-- Left Waxing Crescent (The Maiden / Дева) -->
+    <path d="M -90,-240 A 45,45 0 0,0 -45,-195 A 35,35 0 0,1 -45,-285 A 45,45 0 0,0 -90,-240 Z" fill="#e2e8f0" opacity="0.7"/>
+
+    <!-- Right Waning Crescent (The Crone / Старуха) -->
+    <path d="M 90,-240 A 45,45 0 0,1 45,-195 A 35,35 0 0,0 45,-285 A 45,45 0 0,1 90,-240 Z" fill="#e2e8f0" opacity="0.7"/>
+
+    <!-- THE TRIUNE GODDESS: FRESCO MOSAIC SILHOUETTE -->
+    <!-- Center Face: The Silent Mother (Наша Владычица Безмолвной Маски) -->
+    <g transform="translate(0, -60)">
+      <!-- Gothic Hood / Veil -->
+      <path d="M 0,-140 C -120,-140 -150,-40 -160,180 C -120,240 120,240 160,180 C 150,-40 120,-140 0,-140 Z" 
+            fill="#090a10" stroke="#780016" stroke-width="3" opacity="0.9"/>
+      
+      <!-- Veiled Ribs / Mosaic Folds -->
+      <path d="M -110,60 C -60,140 0,160 0,220 M 110,60 C 60,140 0,160 0,220" 
+            fill="none" stroke="#c59b27" stroke-width="1.5" opacity="0.5"/>
+      <path d="M -80,-30 C -40,40 -20,120 0,200 M 80,-30 C 40,40 20,120 0,200" 
+            fill="none" stroke="#5e4713" stroke-width="1" opacity="0.4"/>
+
+      <!-- Sacred Silver Mask of Our Lady -->
+      <path d="M 0,-90 C -55,-90 -75,-40 -70,30 C -65,85 -30,120 0,145 C 30,120 65,85 70,30 C 75,-40 55,-90 0,-90 Z" 
+            fill="url(#silverMaskGrad)" stroke="#c59b27" stroke-width="2.5"/>
+
+      <!-- Mask Eye Slits (Blank, Cold, Enigmatic) -->
+      <ellipse cx="-26" cy="-10" rx="16" ry="6" fill="#050608" stroke="#780016" stroke-width="1.5"/>
+      <ellipse cx="26" cy="-10" rx="16" ry="6" fill="#050608" stroke="#780016" stroke-width="1.5"/>
+
+      <!-- Forehead Third Eye / Moon Glyph -->
+      <path d="M 0,-65 L -10,-48 L 0,-32 L 10,-48 Z" fill="#780016" stroke="#c59b27" stroke-width="1.5"/>
+      <circle cx="0" cy="-48" r="3" fill="#f59e0b"/>
+
+      <!-- Tear of Blood / Liquid Sorrow of the Drow -->
+      <path d="M -26, -2 C -26,30 -22,50 -26,75 C -30,50 -26,30 -26,-2 Z" fill="#99001a" opacity="0.85"/>
+      <circle cx="-26" cy="78" r="4" fill="#99001a"/>
+
+      <!-- Left Profile: The Maiden (Дева - Восстание, скрытность, кинжал) -->
+      <g transform="translate(-130, -10) rotate(-18)">
+        <path d="M 0,-70 C -40,-70 -60,-20 -50,40 C -40,80 -10,110 10,125 C -5,75 -20,30 0,-70 Z" 
+              fill="#0e1017" stroke="#94a3b8" stroke-width="1.5" opacity="0.8"/>
+        <path d="M -25,-10 Q -15,-5 -5,-8" stroke="#780016" stroke-width="2" fill="none"/>
+      </g>
+
+      <!-- Right Profile: The Crone (Старуха - Смерть, память, тайна) -->
+      <g transform="translate(130, -10) rotate(18)">
+        <path d="M 0,-70 C 40,-70 60,-20 50,40 C 40,80 10,110 -10,125 C 5,75 20,30 0,-70 Z" 
+              fill="#0e1017" stroke="#94a3b8" stroke-width="1.5" opacity="0.8"/>
+        <path d="M 25,-10 Q 15,-5 5,-8" stroke="#780016" stroke-width="2" fill="none"/>
+      </g>
+    </g>
+
+    <!-- Bottom Gothic Cathedral Steeples & Spire City Silhouette -->
+    <path d="M -350,380 L -300,280 L -270,330 L -220,240 L -180,310 L -120,180 L -60,260 L 0,110 L 60,260 L 120,180 L 180,310 L 220,240 L 270,330 L 300,280 L 350,380 Z" 
+          fill="#050608" stroke="#c59b27" stroke-width="2" opacity="0.8"/>
+
+    <!-- Inscribed Latin/Drow Occult Script Arch -->
+    <path d="M -300,100 A 320,320 0 0,1 300,100" fill="none" stroke="#780016" stroke-width="18" stroke-dasharray="14 10" opacity="0.5"/>
+  </g>
+</svg>

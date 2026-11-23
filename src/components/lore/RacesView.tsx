@@ -1,0 +1,78 @@
+import React, { useState } from 'react';
+import { LoreArticleLayout } from './LoreArticleLayout';
+import racesData from '../../data/lore/races.json';
+import { RaceInfo } from '../../types/lore';
+import { Users, Scroll } from 'lucide-react';
+
+export const RacesView: React.FC = () => {
+  const races: RaceInfo[] = racesData as RaceInfo[];
+  const [selectedRaceId, setSelectedRaceId] = useState<string>('drow');
+
+  const currentRace = races.find(r => r.id === selectedRaceId) || races[0];
+  const hasContent = currentRace.sections && currentRace.sections.length > 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Race Selector Pill Tabs */}
+      <div className="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-[#090b11]/90 border border-[#3e2d14] backdrop-blur-md shadow-md">
+        {races.map(race => {
+          const isSelected = race.id === selectedRaceId;
+
+          return (
+            <button
+              key={race.id}
+              onClick={() => setSelectedRaceId(race.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
+                isSelected
+                  ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40 scale-[1.02]'
+                  : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
+              }`}
+            >
+              <Users size={16} className={isSelected ? 'text-[#e5b83b]' : 'text-[#6e685c]'} />
+              <span>{race.nameRu}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Render Current Race Article or Placeholder */}
+      {hasContent ? (
+        <LoreArticleLayout
+          id={`race-${currentRace.id}`}
+          title={currentRace.nameRu}
+          subtitle={`${currentRace.nameEn} • ${currentRace.status}`}
+          quote={currentRace.quote}
+          image={currentRace.image ? {
+            url: currentRace.image,
+            caption: `Иллюстрация: ${currentRace.nameRu}`,
+            alt: currentRace.nameRu
+          } : undefined}
+          lead={currentRace.overview}
+          sections={currentRace.sections}
+        />
+      ) : (
+        <div className="p-8 sm:p-14 rounded-2xl bg-gradient-to-b from-[#10121a] to-[#0a0c10] border border-[#2b2518] text-center space-y-4 max-w-2xl mx-auto shadow-2xl my-8">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#1b1710] border border-[#5e4713] flex items-center justify-center text-[#c59b27] shadow-lg">
+            <Scroll size={32} />
+          </div>
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-heading font-bold text-[#e5b83b]">
+              {currentRace.nameRu}
+            </h3>
+            <span className="text-xs font-heading tracking-widest text-[#959085] uppercase">
+              {currentRace.nameEn}
+            </span>
+          </div>
+          <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-lg mx-auto">
+            Материалы по этому разделу лора находятся в подготовке и будут добавлены из документов кампании.
+          </p>
+          <div className="pt-2">
+            <span className="inline-block px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
+              Ожидает адаптации из Google Docs
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
