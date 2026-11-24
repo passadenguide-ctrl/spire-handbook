@@ -72,7 +72,7 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
+    <div className="flex flex-col lg:flex-row gap-8 w-full">
       {/* Main Reading Column */}
       <article className="flex-1 w-full min-w-0 bg-[#07090e]/90 backdrop-blur-md rounded-2xl border border-[#3e2d14] p-6 sm:p-8 lg:p-10 shadow-[0_8px_35px_rgba(0,0,0,0.9)]">
         {/* Article Header */}
@@ -140,7 +140,7 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
         {/* Article Sections */}
         <div className="space-y-12">
           {sections.map((section, idx) => (
-            <section key={section.id} id={section.id} className="scroll-mt-24 pt-4 border-t border-[#1e170e]/80 first:border-t-0 first:pt-0">
+            <section key={section.id} id={section.id} className="scroll-mt-36 pt-4 border-t border-[#1e170e]/80 first:border-t-0 first:pt-0">
               <h2 className="font-heading font-bold text-xl sm:text-2xl text-[#e8c04d] tracking-wide mb-4 flex items-center gap-2">
                 <Flame size={18} className="text-[#780016] shrink-0" />
                 <span>{section.title}</span>
