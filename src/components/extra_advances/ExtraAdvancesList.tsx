@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Search, Award, ShieldAlert } from 'lucide-react';
+import { Search, Award } from 'lucide-react';
 import { ExtraAdvance } from '../../types/game';
 import { ExtraAdvanceCard } from './ExtraAdvanceCard';
 import { ExtraAdvanceModal } from './ExtraAdvanceModal';
 import extraData from '../../data/extra_advances.json';
+import { useRouter } from '../../router/RouterContext';
 
 export const ExtraAdvancesList: React.FC = () => {
-  const [selectedAdvance, setSelectedAdvance] = useState<ExtraAdvance | null>(null);
+  const { route, openAdvanceModal, closeAdvanceModal } = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   const advances: ExtraAdvance[] = extraData as ExtraAdvance[];
+
+  const selectedAdvance = route.advanceId ? advances.find(a => a.id === route.advanceId) || null : null;
 
   const filteredAdvances = advances.filter(a => {
     const query = searchQuery.toLowerCase();
@@ -57,7 +60,7 @@ export const ExtraAdvancesList: React.FC = () => {
             <ExtraAdvanceCard
               key={advance.id}
               advance={advance}
-              onSelect={setSelectedAdvance}
+              onSelect={(adv) => openAdvanceModal(adv.id)}
             />
           ))}
         </div>
@@ -67,7 +70,7 @@ export const ExtraAdvancesList: React.FC = () => {
       {selectedAdvance && (
         <ExtraAdvanceModal
           advance={selectedAdvance}
-          onClose={() => setSelectedAdvance(null)}
+          onClose={closeAdvanceModal}
         />
       )}
     </div>

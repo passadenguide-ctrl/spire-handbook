@@ -6,16 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ШПИЛЬ: Город Должен Пасть</title>
     <script>
-      // SPA Fallback for GitHub Pages: redirect back to base
-      const path = window.location.pathname;
-      const repo = path.split('/')[1] || '';
-      window.location.replace(window.location.origin + '/' + repo + '/');
+      // Single Page Application redirect for GitHub Pages
+      // Converts direct path (e.g. /spire-handbook/lore/gods) to hash route (/#/lore/gods)
+      (function() {
+        var path = window.location.pathname;
+        var parts = path.split('/').filter(Boolean);
+        var repo = parts.length > 0 && parts[0] === 'spire-handbook' ? 'spire-handbook' : '';
+        if (repo) {
+          parts.shift();
+        }
+        var route = parts.length > 0 ? '/' + parts.join('/') : '/';
+        var base = repo ? '/' + repo + '/' : '/';
+        var query = window.location.search || '';
+        var hash = window.location.hash || '';
+        
+        var targetUrl = window.location.origin + base + '#' + route + query + (hash ? '&' + hash.replace(/^#/, '') : '');
+        window.location.replace(targetUrl);
+      })();
     </script>
   </head>
   <body style="background-color: #0b0c10; color: #e0dacf; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
     <div style="text-align: center;">
       <h2 style="color: #f5d061; letter-spacing: 2px;">ШПИЛЬ: ГОРОД ДОЛЖЕН ПАСТЬ</h2>
-      <p style="color: #9c9587;">Загрузка справочника...</p>
+      <p style="color: #9c9587;">Перенаправление к выбранному разделу...</p>
     </div>
   </body>
 </html>

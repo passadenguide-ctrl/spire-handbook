@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LoreArticleLayout } from './LoreArticleLayout';
 import godsDataRaw from '../../data/lore/gods.json';
-import { ReligionsData, ReligionSubsection, MoonFaceInfo } from '../../types/lore';
-import { Moon, Sun, Sparkles, Scroll, Eye, ShieldAlert, BookOpen } from 'lucide-react';
+import { ReligionsData } from '../../types/lore';
+import { Moon, Sun, Sparkles, Eye } from 'lucide-react';
+import { useRouter } from '../../router/RouterContext';
 
 export const GodsView: React.FC = () => {
+  const { route, navigate } = useRouter();
   const data = godsDataRaw as ReligionsData;
   const subsections = data.subsections;
 
-  // Selected top-level religion subsection
-  const [selectedSubId, setSelectedSubId] = useState<string>('damnu');
-  // Selected face within Damnu (default to Limye)
-  const [selectedFaceId, setSelectedFaceId] = useState<string>('limye');
-
+  // Selected top-level religion subsection from route, fallback to 'damnu'
+  const selectedSubId = route.godSubsectionId || 'damnu';
   const currentSubsection = subsections.find(s => s.id === selectedSubId) || subsections[0];
+
+  // Selected face within Damnu (default to Limye if not in route)
   const faces = currentSubsection.faces || [];
+  const selectedFaceId = route.godFaceId || 'limye';
   const currentFace = faces.find(f => f.id === selectedFaceId) || faces[0];
 
   const getSubIcon = (id: string, isSelected: boolean) => {
@@ -31,6 +33,28 @@ export const GodsView: React.FC = () => {
     }
   };
 
+  const handleSelectSubsection = (subId: string) => {
+    const targetSub = subsections.find(s => s.id === subId);
+    const firstFaceId = targetSub?.faces && targetSub.faces.length > 0 ? targetSub.faces[0].id : undefined;
+    navigate({
+      tab: 'districts',
+      atlasMode: 'lore',
+      loreTab: 'gods',
+      godSubsectionId: subId,
+      godFaceId: subId === 'damnu' ? (firstFaceId || 'limye') : undefined,
+    });
+  };
+
+  const handleSelectFace = (faceId: string) => {
+    navigate({
+      tab: 'districts',
+      atlasMode: 'lore',
+      loreTab: 'gods',
+      godSubsectionId: 'damnu',
+      godFaceId: faceId,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Top-Level Religion Subsection Selector */}
@@ -40,12 +64,7 @@ export const GodsView: React.FC = () => {
           return (
             <button
               key={sub.id}
-              onClick={() => {
-                setSelectedSubId(sub.id);
-                if (sub.faces && sub.faces.length > 0) {
-                  setSelectedFaceId(sub.faces[0].id);
-                }
-              }}
+              onClick={() => handleSelectSubsection(sub.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                 isSelected
                   ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40 scale-[1.02]'
@@ -87,7 +106,7 @@ export const GodsView: React.FC = () => {
               return (
                 <button
                   key={face.id}
-                  onClick={() => setSelectedFaceId(face.id)}
+                  onClick={() => handleSelectFace(face.id)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-heading font-medium transition-all ${
                     isSelected
                       ? 'bg-[#231418] text-[#f5d061] border border-[#780016] shadow-sm font-semibold'
@@ -141,12 +160,13 @@ export const GodsView: React.FC = () => {
                 </div>
               )}
 
-              <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-lg mx-auto">
-                {currentFace.overview || 'Материалы по этому лику Богини Дамну находятся в подготовке и будут добавлены из документов кампании.'}
+              <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-md mx-auto pt-2">
+                {currentFace.overview}
               </p>
-              <div className="pt-2">
-                <span className="inline-block px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
-                  Ожидает адаптации из Google Docs
+
+              <div className="pt-4">
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
+                  Глава находится в процессе перевода и адаптации
                 </span>
               </div>
             </div>
@@ -154,7 +174,7 @@ export const GodsView: React.FC = () => {
         </div>
       )}
 
-      {/* When a Placeholder Subsection is selected (e.g. Solar Pantheon or Forbidden Cults) */}
+      {/* When other subsections are selected */}
       {currentSubsection.id !== 'damnu' && (
         <div className="p-8 sm:p-14 rounded-2xl bg-gradient-to-b from-[#10121a] to-[#0a0c10] border border-[#2b2518] text-center space-y-4 max-w-2xl mx-auto shadow-2xl my-8">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-[#1b1710] border border-[#5e4713] flex items-center justify-center text-[#c59b27] shadow-lg">
@@ -164,16 +184,16 @@ export const GodsView: React.FC = () => {
             <h3 className="text-2xl sm:text-3xl font-heading font-bold text-[#e5b83b]">
               {currentSubsection.title}
             </h3>
-            <span className="text-xs font-heading tracking-widest text-[#959085] uppercase">
+            <p className="text-xs font-heading tracking-widest text-[#959085] uppercase mt-1">
               {currentSubsection.titleEn}
-            </span>
+            </p>
           </div>
-          <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-lg mx-auto">
+          <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-md mx-auto">
             {currentSubsection.description}
           </p>
-          <div className="pt-2">
-            <span className="inline-block px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
-              Ожидает адаптации из Google Docs
+          <div className="pt-4">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
+              Ожидает адаптации из Google Docs кампании
             </span>
           </div>
         </div>

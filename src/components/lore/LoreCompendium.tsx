@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IntroView } from './IntroView';
 import { RacesView } from './RacesView';
 import { DomainsDistrictsView } from './DomainsDistrictsView';
 import { GodsView } from './GodsView';
 import { BookOpen, Users, Compass, Sparkles, MapPin } from 'lucide-react';
+import { useRouter } from '../../router/RouterContext';
+import { LoreCategory } from '../../router/router';
 
-export type LoreTab = 'intro' | 'races' | 'domains' | 'gods';
+export type LoreTab = LoreCategory;
 
 interface LoreCompendiumProps {
   onNavigateToMap: (districtId?: string) => void;
@@ -16,9 +18,9 @@ interface LoreCompendiumProps {
 export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
   onNavigateToMap,
   initialDistrictId,
-  initialTab = 'intro'
 }) => {
-  const [currentTab, setCurrentTab] = useState<LoreTab>(initialTab);
+  const { route, navigate } = useRouter();
+  const currentTab: LoreTab = route.loreTab || 'intro';
 
   const tabs: Array<{ id: LoreTab; label: string; icon: React.ReactNode }> = [
     { id: 'intro', label: 'Введение в Шпиль', icon: <BookOpen size={16} /> },
@@ -26,6 +28,14 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
     { id: 'domains', label: 'Районы и Домены', icon: <Compass size={16} /> },
     { id: 'gods', label: 'Религии и Пантеон', icon: <Sparkles size={16} /> },
   ];
+
+  const handleTabChange = (tabId: LoreTab) => {
+    navigate({
+      tab: 'districts',
+      atlasMode: 'lore',
+      loreTab: tabId,
+    });
+  };
 
   return (
     <div className="space-y-6 w-full max-w-7xl mx-auto">
@@ -37,7 +47,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
             return (
               <button
                 key={tab.id}
-                onClick={() => setCurrentTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                   isSelected
                     ? 'bg-[#780016] text-white shadow-lg border border-[#c59b27]/40 scale-[1.02]'

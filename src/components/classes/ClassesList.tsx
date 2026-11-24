@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BookOpen } from 'lucide-react';
 import { CharacterClass } from '../../types/game';
 import { ClassCard } from './ClassCard';
 import { ClassModal } from './ClassModal';
 import classesData from '../../data/classes.json';
+import { useRouter } from '../../router/RouterContext';
 
 export const ClassesList: React.FC = () => {
-  const [selectedClass, setSelectedClass] = useState<CharacterClass | null>(null);
+  const { route, openClassModal, closeClassModal } = useRouter();
   const classes: CharacterClass[] = classesData as CharacterClass[];
+
+  const selectedClass = route.classId ? classes.find(c => c.id === route.classId) || null : null;
 
   return (
     <div className="space-y-6">
@@ -34,7 +37,7 @@ export const ClassesList: React.FC = () => {
           <ClassCard
             key={characterClass.id}
             characterClass={characterClass}
-            onSelect={setSelectedClass}
+            onSelect={(cls) => openClassModal(cls.id)}
           />
         ))}
       </div>
@@ -43,7 +46,7 @@ export const ClassesList: React.FC = () => {
       {selectedClass && (
         <ClassModal
           characterClass={selectedClass}
-          onClose={() => setSelectedClass(null)}
+          onClose={closeClassModal}
         />
       )}
     </div>

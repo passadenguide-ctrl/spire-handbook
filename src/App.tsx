@@ -1,8 +1,8 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Navbar, NavTab } from './components/layout/Navbar';
 import { ClassesList } from './components/classes/ClassesList';
 import { Flame, ArrowUp, Loader2, BookOpen, MapPin } from 'lucide-react';
-import { LoreTab } from './components/lore/LoreCompendium';
+import { RouterProvider, useRouter } from './router/RouterContext';
 
 // Code-split heavy tabs to reduce initial bundle and memory overhead
 const ExtraAdvancesList = lazy(() =>
@@ -28,34 +28,32 @@ const TabLoadingFallback: React.FC = () => (
   </div>
 );
 
-export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<NavTab>('classes');
-  const [atlasMode, setAtlasMode] = useState<'lore' | 'map'>('lore');
-  const [selectedDistrictForMap, setSelectedDistrictForMap] = useState<string | undefined>(undefined);
-  const [selectedDistrictForLore, setSelectedDistrictForLore] = useState<string | undefined>(undefined);
-  const [loreInitialTab, setLoreInitialTab] = useState<LoreTab>('intro');
+const AppContent: React.FC = () => {
+  const { route, navigate } = useRouter();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigateToMap = (districtId?: string) => {
-    if (districtId) {
-      setSelectedDistrictForMap(districtId);
-    }
-    setAtlasMode('map');
+    navigate({
+      tab: 'districts',
+      atlasMode: 'map',
+      districtId: districtId || undefined,
+    });
   };
 
   const handleNavigateToLore = (districtId?: string) => {
-    if (districtId) {
-      setSelectedDistrictForLore(districtId);
-      setLoreInitialTab('domains');
-    }
-    setAtlasMode('lore');
+    navigate({
+      tab: 'districts',
+      atlasMode: 'lore',
+      loreTab: 'domains',
+      districtId: districtId || undefined,
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isMapActive = currentTab === 'districts' && atlasMode === 'map';
+  const isMapActive = route.tab === 'districts' && route.atlasMode === 'map';
 
   return (
     <div className={`min-h-screen flex flex-col bg-transparent text-[#e0dacf] selection:bg-[#780016] selection:text-white relative ${
@@ -66,35 +64,35 @@ export const App: React.FC = () => {
 
       {/* Top Navigation */}
       <Navbar
-        currentTab={currentTab}
-        onTabChange={setCurrentTab}
+        currentTab={route.tab as NavTab}
+        onTabChange={(tab) => navigate({ tab })}
       />
 
       {/* Atlas & Lore Sub-Navigation Bar (Shown only when Atlas & Chronicles tab is active) */}
-      {currentTab === 'districts' && (
+      {route.tab === 'districts' && (
         <div className="w-full bg-[#070a10]/95 border-b border-[#302310] py-2 px-4 shadow-md flex items-center justify-center sticky top-16 z-30 backdrop-blur-md">
           <div className="inline-flex p-1 rounded-xl bg-[#0e121c] border border-[#2e374d]">
             <button
-              onClick={() => setAtlasMode('lore')}
+              onClick={() => navigate({ tab: 'districts', atlasMode: 'lore' })}
               className={`flex items-center gap-2 px-4 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider transition-all ${
-                atlasMode === 'lore'
+                route.atlasMode === 'lore'
                   ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40 scale-[1.02]'
                   : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926]'
               }`}
             >
-              <BookOpen size={16} className={atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+              <BookOpen size={16} className={route.atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
               <span>Хроники и Лор Шпиля</span>
             </button>
 
             <button
-              onClick={() => setAtlasMode('map')}
+              onClick={() => navigate({ tab: 'districts', atlasMode: 'map' })}
               className={`flex items-center gap-2 px-4 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider transition-all ${
-                atlasMode === 'map'
+                route.atlasMode === 'map'
                   ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40 scale-[1.02]'
                   : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926]'
               }`}
             >
-              <MapPin size={16} className={atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+              <MapPin size={16} className={route.atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
               <span>Интерактивная Карта</span>
             </button>
           </div>
@@ -108,28 +106,28 @@ export const App: React.FC = () => {
           : 'max-w-7xl px-4 sm:px-6 lg:px-8 py-8'
       }`}>
         <Suspense fallback={<TabLoadingFallback />}>
-          {currentTab === 'classes' && <ClassesList />}
-          {currentTab === 'extra' && <ExtraAdvancesList />}
-          {currentTab === 'districts' && atlasMode === 'lore' && (
+          {route.tab === 'classes' && <ClassesList />}
+          {route.tab === 'extra' && <ExtraAdvancesList />}
+          {route.tab === 'districts' && route.atlasMode === 'lore' && (
             <LoreCompendium
               onNavigateToMap={handleNavigateToMap}
-              initialDistrictId={selectedDistrictForLore}
-              initialTab={loreInitialTab}
+              initialDistrictId={route.districtId}
+              initialTab={route.loreTab}
             />
           )}
-          {currentTab === 'districts' && atlasMode === 'map' && (
+          {route.tab === 'districts' && route.atlasMode === 'map' && (
             <DistrictMap
               isCompactScreen={true}
-              initialDistrictId={selectedDistrictForMap}
+              initialDistrictId={route.districtId}
               onNavigateToLore={handleNavigateToLore}
             />
           )}
-          {currentTab === 'equipment' && <EquipmentTable />}
-          {currentTab === 'rules' && <RulesAndTools />}
+          {route.tab === 'equipment' && <EquipmentTable />}
+          {route.tab === 'rules' && <RulesAndTools />}
         </Suspense>
       </main>
 
-      {/* Atmospheric Footer (Shown on scrollable handbook pages, omitted on full-screen map to prevent outer window scrolling) */}
+      {/* Atmospheric Footer */}
       {!isMapActive && (
         <footer className="mt-16 bg-[#07080c]/98 border-t border-[#3d2b0e] py-10 text-xs text-[#878072]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -159,6 +157,14 @@ export const App: React.FC = () => {
         </footer>
       )}
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <RouterProvider>
+      <AppContent />
+    </RouterProvider>
   );
 };
 

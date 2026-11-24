@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, Heart, Skull, AlertTriangle, BookOpen, Layers, Users, Zap, CheckCircle2 } from 'lucide-react';
 import rulesData from '../../data/rules.json';
+import { useRouter } from '../../router/RouterContext';
 
 interface FalloutExample {
   name: string;
@@ -197,7 +198,8 @@ const DETAILED_FALLOUTS: Record<string, Record<'minor' | 'major' | 'severe', Fal
 };
 
 export const RulesAndTools: React.FC = () => {
-  const [selectedResistance, setSelectedResistance] = useState<string>('blood');
+  const { route, navigate } = useRouter();
+  const selectedResistance = route.rulesResistance || 'blood';
   const [selectedSeverity, setSelectedSeverity] = useState<'minor' | 'major' | 'severe'>('minor');
 
   const resistances = rulesData.resistances;
@@ -387,7 +389,7 @@ export const RulesAndTools: React.FC = () => {
           {resistances.map(res => (
             <button
               key={res.id}
-              onClick={() => setSelectedResistance(res.id)}
+              onClick={() => navigate({ tab: 'rules', rulesResistance: res.id }, { replace: true })}
               className={`px-4 py-2 rounded-xl text-xs font-heading font-semibold transition-all border ${
                 selectedResistance === res.id
                   ? 'bg-[#2b1016] text-[#f2aab8] border-[#780016] shadow-md'
