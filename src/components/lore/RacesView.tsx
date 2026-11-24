@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LoreArticleLayout } from './LoreArticleLayout';
 import racesData from '../../data/lore/races.json';
 import { RaceInfo } from '../../types/lore';
 import { Users, Scroll } from 'lucide-react';
+import { useRouter } from '../../router/RouterContext';
 
 export const RacesView: React.FC = () => {
+  const { route, navigate } = useRouter();
   const races: RaceInfo[] = racesData as RaceInfo[];
-  const [selectedRaceId, setSelectedRaceId] = useState<string>('drow');
+  const selectedRaceId = route.raceId || 'drow';
 
   const currentRace = races.find(r => r.id === selectedRaceId) || races[0];
   const hasContent = currentRace.sections && currentRace.sections.length > 0;
+
+  const handleSelectRace = (raceId: string) => {
+    navigate({
+      tab: 'districts',
+      atlasMode: 'lore',
+      loreTab: 'races',
+      raceId,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -21,7 +32,7 @@ export const RacesView: React.FC = () => {
           return (
             <button
               key={race.id}
-              onClick={() => setSelectedRaceId(race.id)}
+              onClick={() => handleSelectRace(race.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                 isSelected
                   ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40 scale-[1.02]'
@@ -68,7 +79,7 @@ export const RacesView: React.FC = () => {
           </p>
           <div className="pt-2">
             <span className="inline-block px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
-              Ожидает адаптации из Google Docs
+              Ожидает адаптации из Google Docs кампании
             </span>
           </div>
         </div>

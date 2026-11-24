@@ -4,11 +4,20 @@ import { Equipment } from '../../types/game';
 import { TagBadge } from '../common/TagBadge';
 import equipmentData from '../../data/equipment.json';
 import tagsData from '../../data/tags.json';
+import { useRouter } from '../../router/RouterContext';
 
 export const EquipmentTable: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'weapon' | 'armor'>('all');
+  const { route, navigate } = useRouter();
+  const activeTab = (route.equipmentCategory as 'all' | 'weapon' | 'armor') || 'all';
   const [searchQuery, setSearchQuery] = useState('');
   const [tagSearch, setTagSearch] = useState('');
+
+  const handleTabChange = (tab: 'all' | 'weapon' | 'armor') => {
+    navigate({
+      tab: 'equipment',
+      equipmentCategory: tab === 'all' ? undefined : tab,
+    }, { replace: true });
+  };
 
   const equipment: Equipment[] = equipmentData as Equipment[];
 
@@ -51,7 +60,7 @@ export const EquipmentTable: React.FC = () => {
             {(['all', 'weapon', 'armor'] as const).map(tab => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
                 className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
                   activeTab === tab
                     ? 'bg-[#780016] text-white shadow'

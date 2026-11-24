@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { District } from '../../types/game';
 import districtsData from '../../data/districts.json';
+import { useRouter } from '../../router/RouterContext';
 
 export interface CustomPin {
   id: string;
@@ -65,6 +66,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   initialDistrictId,
   onNavigateToLore
 }) => {
+  const { navigate } = useRouter();
   const districts: District[] = districtsData as District[];
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>(initialDistrictId || 'amaranth');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -162,6 +164,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   // Auto-center and zoom into a selected district stratum
   const handleSelectStratum = (stratum: StratumConfig) => {
     setSelectedDistrictId(stratum.id);
+    navigate({ tab: 'districts', atlasMode: 'map', districtId: stratum.id }, { replace: true });
     setExpandedLandmark(null);
     if (stratum.id === 'perch') {
       setActivePerchSector('all');

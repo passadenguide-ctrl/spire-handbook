@@ -6,18 +6,21 @@ export interface AppRoute {
   tab: MainTab;
   atlasMode: AtlasMode;
   loreTab: LoreCategory;
+  raceId?: string;          // e.g. 'drow' | 'aelfir' | 'human' | 'gnoll'
   godSubsectionId?: string; // e.g. 'damnu' | 'solar-pantheon' | 'forbidden-cults'
   godFaceId?: string;       // e.g. 'limye' | 'lombre' | 'lekole'
   classId?: string;         // e.g. 'azurite'
   advanceId?: string;       // e.g. 'blood-witches'
   districtId?: string;      // e.g. 'derelictus'
   rulesResistance?: string; // e.g. 'blood' | 'mind' | 'silver' | 'shadow' | 'reputation'
+  equipmentCategory?: string; // e.g. 'weapon' | 'armor' | 'all'
 }
 
 export const DEFAULT_ROUTE: AppRoute = {
   tab: 'classes',
   atlasMode: 'lore',
   loreTab: 'intro',
+  raceId: 'drow',
   godSubsectionId: 'damnu',
   godFaceId: 'limye',
 };
@@ -98,11 +101,12 @@ export function parseRoute(hashString: string): AppRoute {
     return parseLoreSegments(segments.slice(1));
   }
 
-  // 6. Equipment: #/equipment
+  // 6. Equipment: #/equipment or #/equipment/:category
   if (first === 'equipment') {
     return {
       ...DEFAULT_ROUTE,
       tab: 'equipment',
+      equipmentCategory: segments[1] || undefined,
     };
   }
 
@@ -132,7 +136,11 @@ function parseLoreSegments(segments: string[]): AppRoute {
     loreTab,
   };
 
-  if (loreTab === 'gods') {
+  if (loreTab === 'races') {
+    if (segments[1]) {
+      route.raceId = segments[1].toLowerCase();
+    }
+  } else if (loreTab === 'gods') {
     if (segments[1]) {
       route.godSubsectionId = segments[1].toLowerCase();
     }
@@ -168,6 +176,12 @@ export function buildRoutePath(route: Partial<AppRoute>): string {
     }
 
     const loreTab = route.loreTab || 'intro';
+
+    if (loreTab === 'races') {
+      const race = route.raceId || 'drow';
+      return `#/lore/races/${race}`;
+    }
+
     if (loreTab === 'gods') {
       const subId = route.godSubsectionId || 'damnu';
       if (subId === 'damnu') {
@@ -185,7 +199,9 @@ export function buildRoutePath(route: Partial<AppRoute>): string {
   }
 
   if (tab === 'equipment') {
-    return `#/equipment`;
+    return route.equipmentCategory && route.equipmentCategory !== 'all'
+      ? `#/equipment/${route.equipmentCategory}`
+      : `#/equipment`;
   }
 
   if (tab === 'rules') {
