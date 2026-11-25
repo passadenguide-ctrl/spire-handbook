@@ -3,7 +3,7 @@ import { IntroView } from './IntroView';
 import { RacesView } from './RacesView';
 import { DomainsDistrictsView } from './DomainsDistrictsView';
 import { GodsView } from './GodsView';
-import { BookOpen, Users, Compass, Sparkles, MapPin, Moon, Sun, Eye } from 'lucide-react';
+import { BookOpen, Users, Compass, Sparkles, Moon, Sun, Eye } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 import { LoreCategory } from '../../router/router';
 import racesData from '../../data/lore/races.json';
@@ -18,8 +18,8 @@ interface LoreCompendiumProps {
   initialTab?: LoreTab;
 }
 
-// Top fixed stack height: Navbar (64px) + Atlas mode sub-bar (48px) = 112px (Tailwind top-28)
-const UPPER_CHROME_HEIGHT = 112;
+// Top fixed stack height: Navbar (64px) + Atlas mode sub-bar (56px) = 120px
+const UPPER_CHROME_HEIGHT = 120;
 
 export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
   onNavigateToMap,
@@ -151,25 +151,25 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
       {/* Unified Sticky Top Navigation Stack for Lore & Sub-Categories */}
       <div
         ref={stickyNavRef}
-        className={`sticky top-28 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-1.5 pb-2.5 space-y-2.5 transition-all duration-200 ${
+        className={`sticky top-[120px] z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-2.5 pb-3 space-y-2.5 transition-all duration-200 ${
           isScrolled
             ? 'bg-[#06080d]/95 backdrop-blur-md border-b border-[#302310]/90 shadow-[0_12px_32px_rgba(0,0,0,0.9)]'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
         {/* Row 1: Category Tabs Bar */}
-        <div className="flex items-center justify-between gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-lg">
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto md:flex-wrap no-scrollbar">
+        <div className="flex items-center p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-lg">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto md:flex-wrap no-scrollbar w-full">
             {tabs.map(tab => {
               const isSelected = currentTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`shrink-0 flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
+                  className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                     isSelected
-                      ? 'bg-[#780016] text-white shadow-lg border border-[#c59b27]/40'
-                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
+                      ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
+                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                   }`}
                 >
                   <span className={isSelected ? 'text-[#f0ca5b]' : 'text-[#6e685c]'}>
@@ -180,20 +180,11 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
               );
             })}
           </div>
-
-          {/* Quick jump to map */}
-          <button
-            onClick={() => onNavigateToMap()}
-            className="hidden sm:flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#121622] hover:bg-[#1c2233] text-[#c59b27] border border-[#2d3852] text-xs font-heading font-medium transition-colors"
-          >
-            <MapPin size={14} className="text-[#ef4444]" />
-            <span>К интерактивной карте</span>
-          </button>
         </div>
 
         {/* Row 2 (Races): Race Selector Pill Tabs */}
         {currentTab === 'races' && (
-          <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
+          <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
             {races.map(race => {
               const isSelected = race.id === selectedRaceId;
               return (
@@ -202,8 +193,8 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
                   onClick={() => handleSelectRace(race.id)}
                   className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                     isSelected
-                      ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40'
-                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
+                      ? 'bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
+                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                   }`}
                 >
                   <Users size={15} className={isSelected ? 'text-[#e5b83b]' : 'text-[#6e685c]'} />
@@ -217,7 +208,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
         {/* Row 2 & 3 (Gods): Religion Subsection & Three Faces Navigation */}
         {currentTab === 'gods' && (
           <>
-            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
               {godSubsections.map(sub => {
                 const isSelected = sub.id === selectedGodSubId;
                 return (
@@ -226,8 +217,8 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
                     onClick={() => handleSelectGodSub(sub.id)}
                     className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
                       isSelected
-                        ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40'
-                        : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
+                        ? 'bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
+                        : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                     }`}
                   >
                     {getGodSubIcon(sub.id, isSelected)}
@@ -250,7 +241,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
                       className={`shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-heading font-medium transition-all ${
                         isSelected
                           ? 'bg-[#231418] text-[#f5d061] border border-[#780016] shadow-sm font-semibold'
-                          : 'text-[#8c8577] hover:text-[#d4cebf] hover:bg-[#141724]'
+                          : 'text-[#8c8577] hover:text-[#d4cebf] hover:bg-[#141724] border border-transparent'
                       }`}
                     >
                       <Moon size={13} className={isSelected ? 'text-[#f5d061]' : 'text-[#5e584c]'} />

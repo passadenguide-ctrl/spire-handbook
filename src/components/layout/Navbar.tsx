@@ -16,7 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
     { id: 'extra', label: 'Доп. Продвижения', icon: <Award size={16} /> },
     { id: 'districts', label: 'Атлас и Хроники', icon: <Compass size={16} /> },
     { id: 'equipment', label: 'Снаряжение и Теги', icon: <Crosshair size={16} /> },
-    { id: 'rules', label: 'Механики и Fallout', icon: <Dices size={16} /> },
+    { id: 'rules', label: 'Механики и Последствия', icon: <Dices size={16} /> },
   ];
 
   const handleTabClick = (tab: NavTab) => {
@@ -25,13 +25,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#06080d]/95 backdrop-blur-md border-b border-[#3d2b0e] shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-40 h-16 box-border bg-[#06080d]/95 backdrop-blur-md border-b border-[#3d2b0e] shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
+      <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-full gap-4">
           {/* Brand Logo */}
           <div 
             onClick={() => handleTabClick('classes')}
-            className="flex items-center gap-3 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer group shrink-0"
           >
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#780016] to-[#36000a] border border-[#c59b27] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <span className="font-heading font-black text-sm text-[#e5b83b]">S</span>
@@ -40,7 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
               <h1 className="font-heading font-bold text-base sm:text-lg text-[#e5b83b] tracking-wider leading-none">
                 ШПИЛЬ
               </h1>
-              <span className="text-[10px] text-[#959085] tracking-widest uppercase font-heading">
+              <span className="text-[10px] text-[#959085] tracking-widest uppercase font-heading whitespace-nowrap">
                 Город Должен Пасть
               </span>
             </div>
@@ -52,10 +52,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-heading font-semibold transition-all ${
+                className={`flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1.5 rounded-lg text-xs font-heading font-semibold whitespace-nowrap transition-all ${
                   currentTab === item.id
-                    ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/30'
-                    : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1a1c26]'
+                    ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
+                    : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1a1c26] border border-transparent'
                 }`}
               >
                 {item.icon}
@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
           </nav>
 
           {/* Status Badge */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0e1017] border border-[#3e321e] text-[11px] text-[#c59b27] font-heading font-medium">
+          <div className="hidden xl:flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0e1017] border border-[#3e321e] text-[11px] text-[#c59b27] font-heading font-medium whitespace-nowrap">
             <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
             <span>Справочник активен</span>
           </div>

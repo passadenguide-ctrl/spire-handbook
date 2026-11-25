@@ -70,31 +70,33 @@ const AppContent: React.FC = () => {
 
       {/* Atlas & Lore Sub-Navigation Bar (Shown only when Atlas & Chronicles tab is active) */}
       {route.tab === 'districts' && (
-        <div className="w-full h-12 bg-[#070a10]/95 border-b border-[#302310] px-4 shadow-md flex items-center justify-center sticky top-16 z-30 backdrop-blur-md">
-          <div className="inline-flex p-1 rounded-xl bg-[#0e121c] border border-[#2e374d]">
-            <button
-              onClick={() => navigate({ tab: 'districts', atlasMode: 'lore' })}
-              className={`flex items-center gap-2 px-3 sm:px-6 py-1 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider transition-all ${
-                route.atlasMode === 'lore'
-                  ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40 scale-[1.02]'
-                  : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926]'
-              }`}
-            >
-              <BookOpen size={15} className={route.atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
-              <span>Хроники и Лор Шпиля</span>
-            </button>
+        <div className="w-full h-14 box-border bg-[#070a10]/95 border-b border-[#302310] shadow-md sticky top-16 z-30 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#0e121c] border border-[#2e374d]">
+              <button
+                onClick={() => navigate({ tab: 'districts', atlasMode: 'lore' })}
+                className={`flex items-center gap-2 px-3.5 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  route.atlasMode === 'lore'
+                    ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
+                    : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
+                }`}
+              >
+                <BookOpen size={15} className={route.atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+                <span>Хроники и Лор Шпиля</span>
+              </button>
 
-            <button
-              onClick={() => navigate({ tab: 'districts', atlasMode: 'map' })}
-              className={`flex items-center gap-2 px-3 sm:px-6 py-1 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider transition-all ${
-                route.atlasMode === 'map'
-                  ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40 scale-[1.02]'
-                  : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926]'
-              }`}
-            >
-              <MapPin size={15} className={route.atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
-              <span>Интерактивная Карта</span>
-            </button>
+              <button
+                onClick={() => navigate({ tab: 'districts', atlasMode: 'map' })}
+                className={`flex items-center gap-2 px-3.5 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  route.atlasMode === 'map'
+                    ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
+                    : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
+                }`}
+              >
+                <MapPin size={15} className={route.atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+                <span>Интерактивная Карта</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -102,9 +104,9 @@ const AppContent: React.FC = () => {
       {/* Main Content Area */}
       <main className={`flex-1 w-full mx-auto ${
         isMapActive 
-          ? 'h-[calc(100vh-7rem)] max-w-[1800px] p-2 sm:p-3 overflow-hidden flex flex-col' 
+          ? 'h-[calc(100vh-7.5rem)] max-w-[1800px] p-2 sm:p-3 overflow-hidden flex flex-col' 
           : route.tab === 'districts'
-          ? 'max-w-7xl px-4 sm:px-6 lg:px-8 pt-5 pb-8'
+          ? 'max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 pb-8'
           : 'max-w-7xl px-4 sm:px-6 lg:px-8 py-8'
       }`}>
         <Suspense fallback={<TabLoadingFallback />}>
