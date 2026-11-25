@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { List, ChevronRight, ArrowUp, X } from 'lucide-react';
 import { LoreTOCItem } from '../../types/lore';
 
@@ -15,14 +15,27 @@ export const LoreTableOfContents: React.FC<LoreTableOfContentsProps> = ({
 }) => {
   const [internalActiveId, setInternalActiveId] = useState<string>(items[0]?.id || '');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const asideRef = useRef<HTMLElement>(null);
   const activeId = controlledActiveId || internalActiveId;
+
+  const getStickyBottomOffset = (): number => {
+    if (asideRef.current) {
+      const raw = getComputedStyle(asideRef.current).getPropertyValue('--lore-sticky-bottom').trim();
+      const parsed = parseFloat(raw);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+    return 180;
+  };
 
   useEffect(() => {
     if (controlledActiveId) return;
 
     const handleScroll = () => {
-      // 180px threshold accounts for sticky navbar (64px) + atlas bar (48px) + offset
-      const scrollPosition = window.scrollY + 180;
+      // Account for all pinned sticky bars above + comfortable reading threshold
+      const stickyOffset = getStickyBottomOffset();
+      const scrollPosition = window.scrollY + stickyOffset + 60;
 
       for (let i = items.length - 1; i >= 0; i--) {
         const el = document.getElementById(items[i].id);
@@ -48,12 +61,12 @@ export const LoreTableOfContents: React.FC<LoreTableOfContentsProps> = ({
     }
     const el = document.getElementById(id);
     if (el) {
-      // Offset calculation for sticky top navbar + atlas sub-nav bar
-      const headerOffset = 132;
+      // Offset calculation for all pinned sticky top navigation bars
+      const headerOffset = getStickyBottomOffset() + 20;
       const elementPosition = el.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
       window.scrollTo({
-        top: offsetPosition,
+        top: Math.max(0, offsetPosition),
         behavior: 'smooth'
       });
     }
@@ -100,9 +113,15 @@ export const LoreTableOfContents: React.FC<LoreTableOfContentsProps> = ({
 
   return (
     <>
-      {/* Desktop Sticky Sidebar (stays pinned to the right as the user scrolls) */}
-      <aside className="hidden lg:block w-64 xl:w-72 shrink-0 self-stretch relative">
-        <div className="sticky top-28 xl:top-32 rounded-2xl bg-[#0a0d14]/95 backdrop-blur-md border border-[#3e2d14] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] max-h-[calc(100vh-9.5rem)] overflow-y-auto">
+      {/* Desktop Sticky Sidebar (stays pinned right below the sticky top navigation bars) */}
+      <aside ref={asideRef} className="hidden lg:block w-64 xl:w-72 shrink-0 self-stretch relative">
+        <div
+          style={{
+            top: 'calc(var(--lore-sticky-bottom, 180px) + 12px)',
+            maxHeight: 'calc(100vh - var(--lore-sticky-bottom, 180px) - 24px)',
+          }}
+          className="sticky rounded-2xl bg-[#0a0d14]/95 backdrop-blur-md border border-[#3e2d14] p-5 shadow-[0_12px_40px_rgba(0,0,0,0.85)] overflow-y-auto"
+        >
           {/* Header */}
           <div className="flex items-center gap-2 pb-3 mb-3 border-b border-[#2b2112] text-[#c59b27]">
             <List size={16} className="text-[#c59b27]" />

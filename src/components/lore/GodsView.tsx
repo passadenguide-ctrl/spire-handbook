@@ -6,7 +6,7 @@ import { Moon, Sun, Sparkles, Eye } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 
 export const GodsView: React.FC = () => {
-  const { route, navigate } = useRouter();
+  const { route } = useRouter();
   const data = godsDataRaw as ReligionsData;
   const subsections = data.subsections;
 
@@ -33,52 +33,9 @@ export const GodsView: React.FC = () => {
     }
   };
 
-  const handleSelectSubsection = (subId: string) => {
-    const targetSub = subsections.find(s => s.id === subId);
-    const firstFaceId = targetSub?.faces && targetSub.faces.length > 0 ? targetSub.faces[0].id : undefined;
-    navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
-      loreTab: 'gods',
-      godSubsectionId: subId,
-      godFaceId: subId === 'damnu' ? (firstFaceId || 'limye') : undefined,
-    });
-  };
-
-  const handleSelectFace = (faceId: string) => {
-    navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
-      loreTab: 'gods',
-      godSubsectionId: 'damnu',
-      godFaceId: faceId,
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* Top-Level Religion Subsection Selector */}
-      <div className="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-[#090b11]/90 border border-[#3e2d14] backdrop-blur-md shadow-md">
-        {subsections.map(sub => {
-          const isSelected = sub.id === selectedSubId;
-          return (
-            <button
-              key={sub.id}
-              onClick={() => handleSelectSubsection(sub.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
-                isSelected
-                  ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40 scale-[1.02]'
-                  : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
-              }`}
-            >
-              {getSubIcon(sub.id, isSelected)}
-              <span>{sub.title}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* When Damnu is selected: Sub-tab selector for the Three Faces of the Moon */}
+      {/* When Damnu is selected: Description banner & active Face Article */}
       {currentSubsection.id === 'damnu' && faces.length > 0 && (
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-gradient-to-r from-[#121622]/90 to-[#0e111a]/90 border border-[#2e2617] flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -95,34 +52,6 @@ export const GodsView: React.FC = () => {
                 {currentSubsection.description}
               </p>
             </div>
-          </div>
-
-          {/* Three Faces Navigation Pills */}
-          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#0d0f17] border border-[#2b2518]">
-            {faces.map(face => {
-              const isSelected = face.id === selectedFaceId;
-              const isPlaceholder = face.isPlaceholder;
-
-              return (
-                <button
-                  key={face.id}
-                  onClick={() => handleSelectFace(face.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-heading font-medium transition-all ${
-                    isSelected
-                      ? 'bg-[#231418] text-[#f5d061] border border-[#780016] shadow-sm font-semibold'
-                      : 'text-[#8c8577] hover:text-[#d4cebf] hover:bg-[#141724]'
-                  }`}
-                >
-                  <Moon size={14} className={isSelected ? 'text-[#f5d061]' : 'text-[#5e584c]'} />
-                  <span>{face.nameRu}</span>
-                  {isPlaceholder && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#1f1b14] text-[#a89260] border border-[#3d321c]">
-                      Скоро
-                    </span>
-                  )}
-                </button>
-              );
-            })}
           </div>
 
           {/* Render Active Face Article or Placeholder */}

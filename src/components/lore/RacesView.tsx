@@ -2,50 +2,19 @@ import React from 'react';
 import { LoreArticleLayout } from './LoreArticleLayout';
 import racesData from '../../data/lore/races.json';
 import { RaceInfo } from '../../types/lore';
-import { Users, Scroll } from 'lucide-react';
+import { Scroll } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 
 export const RacesView: React.FC = () => {
-  const { route, navigate } = useRouter();
+  const { route } = useRouter();
   const races: RaceInfo[] = racesData as RaceInfo[];
   const selectedRaceId = route.raceId || 'drow';
 
   const currentRace = races.find(r => r.id === selectedRaceId) || races[0];
   const hasContent = currentRace.sections && currentRace.sections.length > 0;
 
-  const handleSelectRace = (raceId: string) => {
-    navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
-      loreTab: 'races',
-      raceId,
-    });
-  };
-
   return (
     <div className="space-y-6">
-      {/* Race Selector Pill Tabs */}
-      <div className="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-[#090b11]/90 border border-[#3e2d14] backdrop-blur-md shadow-md">
-        {races.map(race => {
-          const isSelected = race.id === selectedRaceId;
-
-          return (
-            <button
-              key={race.id}
-              onClick={() => handleSelectRace(race.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
-                isSelected
-                  ? 'bg-[#780016] text-[#ffffff] shadow-lg border border-[#c59b27]/40 scale-[1.02]'
-                  : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724]'
-              }`}
-            >
-              <Users size={16} className={isSelected ? 'text-[#e5b83b]' : 'text-[#6e685c]'} />
-              <span>{race.nameRu}</span>
-            </button>
-          );
-        })}
-      </div>
-
       {/* Render Current Race Article or Placeholder */}
       {hasContent ? (
         <LoreArticleLayout

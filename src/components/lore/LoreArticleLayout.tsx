@@ -76,7 +76,11 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
       {/* Main Reading Column */}
       <article className="flex-1 w-full min-w-0 bg-[#07090e]/90 backdrop-blur-md rounded-2xl border border-[#3e2d14] p-6 sm:p-8 lg:p-10 shadow-[0_8px_35px_rgba(0,0,0,0.9)]">
         {/* Article Header */}
-        <header id={`${id}-overview`} className="mb-8 border-b border-[#2b2112] pb-6">
+        <header
+          id={`${id}-overview`}
+          style={{ scrollMarginTop: 'calc(var(--lore-sticky-bottom, 180px) + 20px)' }}
+          className="mb-8 border-b border-[#2b2112] pb-6"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             {subtitle && (
               <span className="text-[11px] font-heading uppercase tracking-widest px-3 py-1 rounded-full bg-[#171b26] border border-[#3d2e1a] text-[#c59b27]">
@@ -140,7 +144,12 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
         {/* Article Sections */}
         <div className="space-y-12">
           {sections.map((section, idx) => (
-            <section key={section.id} id={section.id} className="scroll-mt-36 pt-4 border-t border-[#1e170e]/80 first:border-t-0 first:pt-0">
+            <section
+              key={section.id}
+              id={section.id}
+              style={{ scrollMarginTop: 'calc(var(--lore-sticky-bottom, 180px) + 20px)' }}
+              className="pt-4 border-t border-[#1e170e]/80 first:border-t-0 first:pt-0"
+            >
               <h2 className="font-heading font-bold text-xl sm:text-2xl text-[#e8c04d] tracking-wide mb-4 flex items-center gap-2">
                 <Flame size={18} className="text-[#780016] shrink-0" />
                 <span>{section.title}</span>
