@@ -135,7 +135,7 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
 
           {/* Lead Paragraph */}
           {lead && (
-            <p className="text-base sm:text-lg text-[#ded7ca] font-body leading-relaxed">
+            <p className="text-base sm:text-lg text-[#ded7ca] font-body leading-relaxed whitespace-pre-line">
               {lead}
             </p>
           )}

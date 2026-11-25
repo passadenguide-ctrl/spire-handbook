@@ -117,6 +117,10 @@ export interface ReligionSubsection {
   titleEn: string;
   badge: string;
   description: string;
+  quote?: string;
+  image?: string;
+  overview?: string;
+  sections?: LoreSectionBlock[];
   faces?: MoonFaceInfo[];
   isPlaceholder?: boolean;
 }

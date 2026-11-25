@@ -3,7 +3,7 @@ import { IntroView } from './IntroView';
 import { RacesView } from './RacesView';
 import { DomainsDistrictsView } from './DomainsDistrictsView';
 import { GodsView } from './GodsView';
-import { BookOpen, Users, Compass, Sparkles, Moon, Sun, Eye } from 'lucide-react';
+import { BookOpen, Users, Compass, Sparkles, Moon, Sun, Eye, Skull } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 import { LoreCategory } from '../../router/router';
 import racesData from '../../data/lore/races.json';
@@ -132,6 +132,8 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
     switch (id) {
       case 'damnu':
         return <Moon size={16} className={color} />;
+      case 'charnel':
+        return <Skull size={16} className={color} />;
       case 'solar-pantheon':
         return <Sun size={16} className={color} />;
       case 'forbidden-cults':

@@ -2,7 +2,7 @@ import React from 'react';
 import { LoreArticleLayout } from './LoreArticleLayout';
 import godsDataRaw from '../../data/lore/gods.json';
 import { ReligionsData } from '../../types/lore';
-import { Moon, Sun, Sparkles, Eye } from 'lucide-react';
+import { Moon, Sun, Sparkles, Eye, Skull } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 
 export const GodsView: React.FC = () => {
@@ -24,6 +24,8 @@ export const GodsView: React.FC = () => {
     switch (id) {
       case 'damnu':
         return <Moon size={16} className={color} />;
+      case 'charnel':
+        return <Skull size={16} className={color} />;
       case 'solar-pantheon':
         return <Sun size={16} className={color} />;
       case 'forbidden-cults':
@@ -105,27 +107,43 @@ export const GodsView: React.FC = () => {
 
       {/* When other subsections are selected */}
       {currentSubsection.id !== 'damnu' && (
-        <div className="p-8 sm:p-14 rounded-2xl bg-gradient-to-b from-[#10121a] to-[#0a0c10] border border-[#2b2518] text-center space-y-4 max-w-2xl mx-auto shadow-2xl my-8">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#1b1710] border border-[#5e4713] flex items-center justify-center text-[#c59b27] shadow-lg">
-            {getSubIcon(currentSubsection.id, true)}
-          </div>
-          <div>
-            <h3 className="text-2xl sm:text-3xl font-heading font-bold text-[#e5b83b]">
-              {currentSubsection.title}
-            </h3>
-            <p className="text-xs font-heading tracking-widest text-[#959085] uppercase mt-1">
-              {currentSubsection.titleEn}
+        !currentSubsection.isPlaceholder && currentSubsection.sections && currentSubsection.sections.length > 0 ? (
+          <LoreArticleLayout
+            id={`god-${currentSubsection.id}`}
+            title={currentSubsection.title}
+            subtitle={[currentSubsection.titleEn, currentSubsection.badge].filter(Boolean).join(' • ')}
+            quote={currentSubsection.quote}
+            image={currentSubsection.image ? {
+              url: currentSubsection.image,
+              caption: `Иллюстрация: ${currentSubsection.title}`,
+              alt: currentSubsection.title
+            } : undefined}
+            lead={currentSubsection.overview}
+            sections={currentSubsection.sections}
+          />
+        ) : (
+          <div className="p-8 sm:p-14 rounded-2xl bg-gradient-to-b from-[#10121a] to-[#0a0c10] border border-[#2b2518] text-center space-y-4 max-w-2xl mx-auto shadow-2xl my-8">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#1b1710] border border-[#5e4713] flex items-center justify-center text-[#c59b27] shadow-lg">
+              {getSubIcon(currentSubsection.id, true)}
+            </div>
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-heading font-bold text-[#e5b83b]">
+                {currentSubsection.title}
+              </h3>
+              <p className="text-xs font-heading tracking-widest text-[#959085] uppercase mt-1">
+                {currentSubsection.titleEn}
+              </p>
+            </div>
+            <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-md mx-auto">
+              {currentSubsection.description}
             </p>
+            <div className="pt-4">
+              <span className="px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
+                Ожидает адаптации из Google Docs кампании
+              </span>
+            </div>
           </div>
-          <p className="text-sm sm:text-base text-[#b8b0a2] leading-relaxed max-w-md mx-auto">
-            {currentSubsection.description}
-          </p>
-          <div className="pt-4">
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-heading font-medium bg-[#1c1315] text-[#e0a96d] border border-[#4a2e1d]">
-              Ожидает адаптации из Google Docs кампании
-            </span>
-          </div>
-        </div>
+        )
       )}
     </div>
   );
