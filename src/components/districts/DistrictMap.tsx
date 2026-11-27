@@ -9,6 +9,7 @@ import {
 import { District } from '../../types/game';
 import districtsData from '../../data/districts.json';
 import { useRouter } from '../../router/RouterContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export interface CustomPin {
   id: string;
@@ -67,6 +68,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   onNavigateToLore
 }) => {
   const { navigate } = useRouter();
+  const { isGoingDark } = useTheme();
   const districts: District[] = districtsData as District[];
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>(initialDistrictId || 'amaranth');
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -459,19 +461,42 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   };
 
   return (
-    <div className={`space-y-3 text-[#e0dacf] flex flex-col ${isCompactScreen ? 'xl:h-full xl:overflow-hidden' : ''}`}>
-      
+    <div
+      className={`space-y-3 flex flex-col ${isGoingDark ? 'text-[#e2e8f0]' : 'text-[#e0dacf]'} ${
+        isCompactScreen ? 'xl:h-full xl:overflow-hidden' : ''
+      }`}
+    >
       {/* Compact Top Header Bar */}
-      <div className="bg-gradient-to-r from-[#1c1209] via-[#10131d] to-[#090b10] border border-[#523e14] rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-xl flex flex-wrap items-center justify-between gap-2 sm:gap-3 flex-shrink-0">
+      <div
+        className={`px-3 py-2 sm:px-4 sm:py-2.5 flex flex-wrap items-center justify-between gap-2 sm:gap-3 flex-shrink-0 ${
+          isGoingDark
+            ? 'spire-panel bg-gradient-to-r from-[#0d1730] via-[#091124] to-[#060b17] border-2 border-black shadow-[5px_5px_0px_#000000]'
+            : 'bg-gradient-to-r from-[#1c1209] via-[#10131d] to-[#090b10] border border-[#523e14] rounded-xl shadow-xl'
+        }`}
+      >
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#780016] to-[#36000a] border border-[#c59b27] flex items-center justify-center text-[#e5b83b] shadow-md shrink-0">
+          <div
+            className={`w-8 h-8 flex items-center justify-center shrink-0 ${
+              isGoingDark
+                ? 'bg-[#b91c1c] border-2 border-black text-white shadow-[2px_2px_0px_#000000]'
+                : 'rounded-lg bg-gradient-to-br from-[#780016] to-[#36000a] border border-[#c59b27] text-[#e5b83b] shadow-md'
+            }`}
+          >
             <Compass size={17} />
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-lg font-heading font-black text-[#e5b83b] leading-tight truncate">
+            <h2
+              className={`text-sm sm:text-lg font-heading font-black leading-tight truncate ${
+                isGoingDark ? 'text-[#f0f6ff] tracking-wide' : 'text-[#e5b83b]'
+              }`}
+            >
               Интерактивная Карта Шпиля
             </h2>
-            <span className="hidden sm:block text-[10px] text-[#959085] uppercase tracking-widest font-heading">
+            <span
+              className={`hidden sm:block text-[10px] uppercase tracking-widest ${
+                isGoingDark ? 'font-mono text-[#7dd3fc]' : 'font-heading text-[#959085]'
+              }`}
+            >
               11 ярусов • Автофокус и зум • Пользовательские метки
             </span>
           </div>
@@ -482,10 +507,14 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setIsPinModeActive(!isPinModeActive)}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-heading font-bold transition-colors border ${
-                isPinModeActive
-                  ? 'bg-[#c59b27] text-black border-[#f0cb78] shadow-lg animate-pulse'
-                  : 'bg-[#151824] hover:bg-[#780016] text-[#f0cb78] hover:text-white border-[#45371c]'
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold transition-colors border ${
+                isGoingDark
+                  ? isPinModeActive
+                    ? 'font-mono bg-[#38bdf8] text-[#03050b] border-2 border-black shadow-[3px_3px_0px_#000000] animate-pulse'
+                    : 'font-mono bg-[#0b152c] hover:bg-[#b91c1c] text-[#7dd3fc] hover:text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                  : isPinModeActive
+                    ? 'rounded-lg font-heading bg-[#c59b27] text-black border-[#f0cb78] shadow-lg animate-pulse'
+                    : 'rounded-lg font-heading bg-[#151824] hover:bg-[#780016] text-[#f0cb78] hover:text-white border-[#45371c]'
               }`}
               title="Поставить новую метку на карту"
             >
@@ -495,20 +524,34 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
             <button
               onClick={() => setShowPinManager(true)}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#12141e] hover:bg-[#1a1e2d] text-[#a8a192] hover:text-white border border-[#2b3042] text-xs font-heading font-semibold transition-colors"
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-colors border ${
+                isGoingDark
+                  ? 'font-mono bg-[#03050b] hover:bg-[#0d1c3d] text-[#cbd5e1] hover:text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                  : 'rounded-lg font-heading bg-[#12141e] hover:bg-[#1a1e2d] text-[#a8a192] hover:text-white border-[#2b3042]'
+              }`}
             >
-              <MapPin size={13} className="text-[#c59b27]" />
+              <MapPin size={13} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
               <span>Метки ({pins.length})</span>
             </button>
           </div>
 
-          <div className="flex bg-[#0b0c12] p-0.5 rounded-lg border border-[#2e3346]">
+          <div
+            className={`flex p-0.5 border ${
+              isGoingDark
+                ? 'bg-[#03050b] border-2 border-black shadow-[2px_2px_0px_#000000]'
+                : 'bg-[#0b0c12] rounded-lg border-[#2e3346]'
+            }`}
+          >
             <button
               onClick={() => setViewMode('map')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
-                  : 'text-[#959085] hover:text-[#e0dacf]'
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold transition-colors ${
+                isGoingDark
+                  ? viewMode === 'map'
+                    ? 'font-mono bg-[#b91c1c] text-white border border-black'
+                    : 'font-mono text-[#94a3b8] hover:text-white'
+                  : viewMode === 'map'
+                    ? 'rounded-md font-heading bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
+                    : 'rounded-md font-heading text-[#959085] hover:text-[#e0dacf]'
               }`}
             >
               <MapIcon size={13} />
@@ -516,10 +559,14 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
-                  : 'text-[#959085] hover:text-[#e0dacf]'
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold transition-colors ${
+                isGoingDark
+                  ? viewMode === 'list'
+                    ? 'font-mono bg-[#b91c1c] text-white border border-black'
+                    : 'font-mono text-[#94a3b8] hover:text-white'
+                  : viewMode === 'list'
+                    ? 'rounded-md font-heading bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
+                    : 'rounded-md font-heading text-[#959085] hover:text-[#e0dacf]'
               }`}
             >
               <List size={13} />
@@ -531,21 +578,35 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
       {/* Pin Mode Banner Notification */}
       {isPinModeActive && (
-        <div className="bg-gradient-to-r from-[#3b2409] to-[#1a1208] border-2 border-[#c59b27] rounded-lg p-2.5 px-4 flex items-center justify-between shadow-xl flex-shrink-0 animate-in fade-in duration-150">
+        <div
+          className={`p-2.5 px-4 flex items-center justify-between flex-shrink-0 animate-in fade-in duration-150 ${
+            isGoingDark
+              ? 'bg-[#0b152c] border-2 border-[#38bdf8] shadow-[4px_4px_0px_#000000]'
+              : 'bg-gradient-to-r from-[#3b2409] to-[#1a1208] border-2 border-[#c59b27] rounded-lg shadow-xl'
+          }`}
+        >
           <div className="flex items-center gap-2.5">
-            <Crosshair size={18} className="text-[#f0cb78] animate-spin" />
+            <Crosshair size={18} className={`${isGoingDark ? 'text-[#38bdf8]' : 'text-[#f0cb78]'} animate-spin`} />
             <div>
-              <span className="font-heading font-bold text-xs sm:text-sm text-[#f0cb78] block">
+              <span
+                className={`font-heading font-bold text-xs sm:text-sm block ${
+                  isGoingDark ? 'text-[#7dd3fc]' : 'text-[#f0cb78]'
+                }`}
+              >
                 Режим добавления метки активен
               </span>
-              <span className="text-[11px] text-[#dcd4c7]">
+              <span className={`text-[11px] ${isGoingDark ? 'text-[#cbd5e1]' : 'text-[#dcd4c7]'}`}>
                 Кликните в любую точку на карте, чтобы привязать локацию со справочным материалом.
               </span>
             </div>
           </div>
           <button
             onClick={() => setIsPinModeActive(false)}
-            className="px-2.5 py-1 rounded-md bg-black/60 hover:bg-[#780016] text-xs text-[#e0dacf] border border-[#4a3b19] transition-colors"
+            className={`px-2.5 py-1 text-xs transition-colors ${
+              isGoingDark
+                ? 'bg-[#03050b] hover:bg-[#b91c1c] text-white border-2 border-black'
+                : 'rounded-md bg-black/60 hover:bg-[#780016] text-[#e0dacf] border border-[#4a3b19]'
+            }`}
           >
             Отмена
           </button>
@@ -557,13 +618,27 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 sm:gap-4 items-stretch xl:flex-1 xl:min-h-0 xl:overflow-hidden">
           
           {/* Mobile / Tablet Compact Horizontal 11-Strata Selector (< xl) */}
-          <div className="xl:hidden bg-[#090b10] border border-[#3e321e] rounded-xl p-2 shadow-xl space-y-1.5">
-            <div className="flex items-center justify-between px-1 text-[11px] font-heading font-bold text-[#f0cb78] uppercase tracking-wider">
+          <div
+            className={`xl:hidden p-2 space-y-1.5 ${
+              isGoingDark
+                ? 'bg-[#081022] border-2 border-black shadow-[4px_4px_0px_#000000]'
+                : 'bg-[#090b10] border border-[#3e321e] rounded-xl shadow-xl'
+            }`}
+          >
+            <div
+              className={`flex items-center justify-between px-1 text-[11px] font-heading font-bold uppercase tracking-wider ${
+                isGoingDark ? 'text-[#7dd3fc]' : 'text-[#f0cb78]'
+              }`}
+            >
               <span className="flex items-center gap-1.5">
-                <Layers size={13} className="text-[#c59b27]" />
+                <Layers size={13} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
                 Ярусы Шпиля (11)
               </span>
-              <span className="text-[10px] text-[#8a8274] font-mono tabular-nums">
+              <span
+                className={`text-[10px] font-mono tabular-nums ${
+                  isGoingDark ? 'text-[#94a3b8]' : 'text-[#8a8274]'
+                }`}
+              >
                 {SPIRE_STRATA.find(s => s.id === activeDistrict.id)?.height}
               </span>
             </div>
@@ -575,16 +650,40 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                   <button
                     key={stratum.id}
                     onClick={() => handleSelectStratum(stratum)}
-                    className={`shrink-0 px-2.5 py-1.5 rounded-lg border text-left transition-colors flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-[#780016] to-[#45020d] text-white border-[#f0cb78] shadow'
-                        : 'bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60'
+                    className={`shrink-0 px-2.5 py-1.5 border text-left transition-colors flex items-center gap-1.5 ${
+                      isGoingDark
+                        ? isSelected
+                          ? 'bg-[#b91c1c] text-white border-2 border-[#38bdf8] shadow-[2px_2px_0px_#000000]'
+                          : 'bg-[#040812] text-[#cbd5e1] border-2 border-black hover:border-[#38bdf8]'
+                        : isSelected
+                          ? 'rounded-lg bg-gradient-to-r from-[#780016] to-[#45020d] text-white border-[#f0cb78] shadow'
+                          : 'rounded-lg bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60'
                     }`}
                   >
-                    <span className={`text-[10px] font-mono tabular-nums ${isSelected ? 'text-[#f0cb78] font-bold' : 'text-[#6e685c]'}`}>
+                    <span
+                      className={`text-[10px] font-mono tabular-nums ${
+                        isSelected
+                          ? isGoingDark
+                            ? 'text-[#7dd3fc] font-bold'
+                            : 'text-[#f0cb78] font-bold'
+                          : isGoingDark
+                            ? 'text-[#64748b]'
+                            : 'text-[#6e685c]'
+                      }`}
+                    >
                       {idx + 1}.
                     </span>
-                    <span className={`font-heading text-xs font-bold whitespace-nowrap ${isSelected ? 'text-[#f0cb78]' : 'text-[#dcd5c9]'}`}>
+                    <span
+                      className={`font-heading text-xs font-bold whitespace-nowrap ${
+                        isSelected
+                          ? isGoingDark
+                            ? 'text-white'
+                            : 'text-[#f0cb78]'
+                          : isGoingDark
+                            ? 'text-[#e2e8f0]'
+                            : 'text-[#dcd5c9]'
+                      }`}
+                    >
                       {stratum.name}
                     </span>
                   </button>
@@ -594,13 +693,25 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
           </div>
 
           {/* 1. Desktop Left Vertical Stratum Needle (3 cols on xl) */}
-          <div className="hidden xl:col-span-3 xl:flex xl:flex-col bg-[#090b10] border border-[#3e321e] rounded-xl p-2.5 shadow-xl min-h-0 h-full overflow-hidden">
-            <div className="flex items-center justify-between px-2 py-1 text-xs font-heading font-bold text-[#f0cb78] uppercase tracking-wider border-b border-[#252838] pb-1.5 flex-shrink-0">
+          <div
+            className={`hidden xl:col-span-3 xl:flex xl:flex-col p-2.5 min-h-0 h-full overflow-hidden ${
+              isGoingDark
+                ? 'bg-[#081022] border-2 border-black shadow-[5px_5px_0px_#000000]'
+                : 'bg-[#090b10] border border-[#3e321e] rounded-xl shadow-xl'
+            }`}
+          >
+            <div
+              className={`flex items-center justify-between px-2 py-1 text-xs font-heading font-bold uppercase tracking-wider border-b pb-1.5 flex-shrink-0 ${
+                isGoingDark ? 'text-[#7dd3fc] border-b-2 border-black' : 'text-[#f0cb78] border-[#252838]'
+              }`}
+            >
               <span className="flex items-center gap-1.5">
-                <Layers size={13} className="text-[#c59b27]" />
+                <Layers size={13} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
                 Срез Шпиля (11 ярусов)
               </span>
-              <span className="text-[10px] text-[#736c60] font-mono">Высота</span>
+              <span className={`text-[10px] font-mono ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#736c60]'}`}>
+                Высота
+              </span>
             </div>
 
             <div className="space-y-1 overflow-y-auto flex-1 pr-1 pt-1.5">
@@ -613,33 +724,65 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                   <button
                     key={stratum.id}
                     onClick={() => handleSelectStratum(stratum)}
-                    className={`w-full text-left p-2 rounded-lg border transition-colors flex items-center justify-between group ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-[#780016] to-[#36000a] text-white border-[#f0cb78] shadow-md ring-1 ring-[#c59b27]/50'
-                        : 'bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60 hover:bg-[#151824]'
+                    className={`w-full text-left p-2 border transition-colors flex items-center justify-between group ${
+                      isGoingDark
+                        ? isSelected
+                          ? 'bg-gradient-to-r from-[#b91c1c] to-[#7f1d1d] text-white border-2 border-black shadow-[3px_3px_0px_#000000] ring-1 ring-[#38bdf8]/60'
+                          : 'bg-[#040812] text-[#cbd5e1] border-2 border-black hover:border-[#38bdf8] hover:bg-[#0b152c]'
+                        : isSelected
+                          ? 'rounded-lg bg-gradient-to-r from-[#780016] to-[#36000a] text-white border-[#f0cb78] shadow-md ring-1 ring-[#c59b27]/50'
+                          : 'rounded-lg bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60 hover:bg-[#151824]'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-mono w-4 text-center ${isSelected ? 'text-[#f0cb78] font-bold' : 'text-[#6e685c]'}`}>
+                      <span
+                        className={`text-[10px] font-mono w-4 text-center ${
+                          isSelected
+                            ? isGoingDark
+                              ? 'text-[#7dd3fc] font-bold'
+                              : 'text-[#f0cb78] font-bold'
+                            : isGoingDark
+                              ? 'text-[#64748b]'
+                              : 'text-[#6e685c]'
+                        }`}
+                      >
                         {idx + 1}
                       </span>
                       <div>
-                        <span className={`font-heading text-xs font-bold flex items-center gap-1 ${isSelected ? 'text-[#f0cb78]' : 'group-hover:text-[#f0cb78]'}`}>
+                        <span
+                          className={`font-heading text-xs font-bold flex items-center gap-1 ${
+                            isSelected
+                              ? isGoingDark
+                                ? 'text-white'
+                                : 'text-[#f0cb78]'
+                              : isGoingDark
+                                ? 'group-hover:text-[#7dd3fc]'
+                                : 'group-hover:text-[#f0cb78]'
+                          }`}
+                        >
                           {stratum.name}
                           {isPerch && <span title="Огибает внешнюю границу"><Globe size={11} className="text-[#60a5fa]" /></span>}
                           {isGarden && <span title="Агро-своды"><Sprout size={11} className="text-[#4ade80]" /></span>}
                         </span>
-                        <span className="text-[10px] text-[#857e72] block">
+                        <span className={`text-[10px] block ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#857e72]'}`}>
                           {stratum.tier}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] font-mono text-[#8a8274] block">
+                      <span
+                        className={`text-[10px] font-mono block ${
+                          isGoingDark ? 'text-[#cbd5e1]' : 'text-[#8a8274]'
+                        }`}
+                      >
                         {stratum.height}
                       </span>
-                      <span className="text-[9px] text-[#c59b27] font-serif italic">
+                      <span
+                        className={`text-[9px] font-serif italic ${
+                          isGoingDark ? 'text-[#7dd3fc]' : 'text-[#c59b27]'
+                        }`}
+                      >
                         {stratum.tag}
                       </span>
                     </div>
@@ -651,37 +794,67 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
           {/* 2. Middle: Large Dedicated Map Canvas (5 cols on xl; large ~64dvh stage on mobile) */}
           <div className="xl:col-span-5 xl:h-full flex flex-col xl:min-h-0">
-            <div className={`relative bg-[#07080c] border-2 border-[#4a3b19] overflow-hidden shadow-2xl flex flex-col ${
-              isFullscreen
-                ? 'fixed inset-0 sm:inset-4 z-50 h-[100dvh] sm:h-auto rounded-none sm:rounded-xl'
-                : 'h-[64dvh] min-h-[430px] max-h-[620px] xl:h-auto xl:min-h-0 xl:max-h-none xl:flex-1 rounded-xl'
-            }`}>
+            <div
+              className={`relative overflow-hidden flex flex-col ${
+                isGoingDark
+                  ? 'bg-[#03050b] border-2 border-black shadow-[6px_6px_0px_#000000]'
+                  : 'bg-[#07080c] border-2 border-[#4a3b19] shadow-2xl'
+              } ${
+                isFullscreen
+                  ? `fixed inset-0 sm:inset-4 z-50 h-[100dvh] sm:h-auto ${isGoingDark ? '' : 'rounded-none sm:rounded-xl'}`
+                  : `h-[64dvh] min-h-[430px] max-h-[620px] xl:h-auto xl:min-h-0 xl:max-h-none xl:flex-1 ${
+                      isGoingDark ? '' : 'rounded-xl'
+                    }`
+              }`}
+            >
               {/* Floating Toolbar */}
-              <div className="absolute top-2.5 left-2.5 z-30 flex items-center gap-1 bg-black/85 backdrop-blur-md p-1 rounded-lg border border-[#3e3422] shadow-xl">
+              <div
+                className={`absolute top-2.5 left-2.5 z-30 flex items-center gap-1 backdrop-blur-md p-1 border ${
+                  isGoingDark
+                    ? 'bg-[#03050b]/95 border-2 border-black shadow-[3px_3px_0px_#000000]'
+                    : 'bg-black/85 rounded-lg border-[#3e3422] shadow-xl'
+                }`}
+              >
                 <button
                   onClick={handleZoomIn}
-                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
+                  className={`p-2 sm:p-1.5 transition-colors ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#b91c1c] text-[#7dd3fc] hover:text-white'
+                      : 'rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white'
+                  }`}
                   title="Приблизить (+)"
                 >
                   <ZoomIn size={15} />
                 </button>
                 <button
                   onClick={handleZoomOut}
-                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
+                  className={`p-2 sm:p-1.5 transition-colors ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#b91c1c] text-[#7dd3fc] hover:text-white'
+                      : 'rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white'
+                  }`}
                   title="Отдалить (-)"
                 >
                   <ZoomOut size={15} />
                 </button>
                 <button
                   onClick={handleResetZoom}
-                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#262c3e] text-[#b8b0a1] hover:text-white transition-colors"
+                  className={`p-2 sm:p-1.5 transition-colors ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#1e315c] text-[#cbd5e1] hover:text-white'
+                      : 'rounded-md bg-[#141724] hover:bg-[#262c3e] text-[#b8b0a1] hover:text-white'
+                  }`}
                   title="Сбросить масштаб"
                 >
                   <RotateCcw size={15} />
                 </button>
                 <button
                   onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#b8b0a1] hover:text-white transition-colors"
+                  className={`p-2 sm:p-1.5 transition-colors ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#b91c1c] text-[#cbd5e1] hover:text-white'
+                      : 'rounded-md bg-[#141724] hover:bg-[#780016] text-[#b8b0a1] hover:text-white'
+                  }`}
                   title={isFullscreen ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}
                 >
                   {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
@@ -690,57 +863,77 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               {/* District Active Floating Banner & Perch Sector Switcher */}
               <div className="absolute top-2.5 right-2.5 z-30 flex flex-col sm:flex-row items-end sm:items-center gap-1.5 sm:gap-2 max-w-[calc(100%-170px)] sm:max-w-none pointer-events-none">
-                <div className="bg-black/85 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-lg border border-[#c59b27] shadow-xl sm:order-2 max-w-full">
-                  <span className="hidden sm:block text-[9px] uppercase tracking-wider font-heading text-[#959085]">
+                <div
+                  className={`backdrop-blur-md px-2.5 sm:px-3 py-1 border sm:order-2 max-w-full ${
+                    isGoingDark
+                      ? 'bg-[#03050b]/95 border-2 border-[#38bdf8] shadow-[3px_3px_0px_#000000]'
+                      : 'bg-black/85 rounded-lg border-[#c59b27] shadow-xl'
+                  }`}
+                >
+                  <span
+                    className={`hidden sm:block text-[9px] uppercase tracking-wider font-heading ${
+                      isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'
+                    }`}
+                  >
                     Выбранный ярус:
                   </span>
-                  <span className="font-heading font-black text-[11px] sm:text-xs text-[#f0cb78] block truncate">
+                  <span
+                    className={`font-heading font-black text-[11px] sm:text-xs block truncate ${
+                      isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'
+                    }`}
+                  >
                     {activeDistrict.nameRu}
                   </span>
                 </div>
 
                 {isPerchActive && (
-                  <div className="flex flex-wrap justify-end items-center gap-1 bg-black/90 backdrop-blur-md px-2 py-1 rounded-lg border border-[#38bdf8]/60 shadow-xl pointer-events-auto sm:order-1">
+                  <div
+                    className={`flex flex-wrap justify-end items-center gap-1 backdrop-blur-md px-2 py-1 border pointer-events-auto sm:order-1 ${
+                      isGoingDark
+                        ? 'bg-[#03050b]/95 border-2 border-black shadow-[3px_3px_0px_#000000]'
+                        : 'bg-black/90 rounded-lg border-[#38bdf8]/60 shadow-xl'
+                    }`}
+                  >
                     <span className="hidden sm:flex text-[10px] text-[#38bdf8] font-heading font-bold mr-1 items-center gap-1">
                       <Globe size={11} /> Сектора:
                     </span>
                     <button
                       onClick={() => handleSelectPerchSector('all')}
-                      className={`px-2 py-0.5 rounded text-[10px] font-heading transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] font-heading transition-colors ${
                         activePerchSector === 'all'
                           ? 'bg-[#0284c7] text-white font-bold shadow'
                           : 'text-[#94a3b8] hover:text-white hover:bg-white/10'
-                      }`}
+                      } ${isGoingDark ? '' : 'rounded'}`}
                     >
                       Все 3
                     </button>
                     <button
                       onClick={() => handleSelectPerchSector('middle')}
-                      className={`px-2 py-0.5 rounded text-[10px] font-heading transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] font-heading transition-colors ${
                         activePerchSector === 'middle'
                           ? 'bg-[#0284c7] text-white font-bold shadow'
                           : 'text-[#94a3b8] hover:text-white hover:bg-white/10'
-                      }`}
+                      } ${isGoingDark ? '' : 'rounded'}`}
                     >
                       Средний
                     </button>
                     <button
                       onClick={() => handleSelectPerchSector('upper')}
-                      className={`px-2 py-0.5 rounded text-[10px] font-heading transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] font-heading transition-colors ${
                         activePerchSector === 'upper'
                           ? 'bg-[#0284c7] text-white font-bold shadow'
                           : 'text-[#94a3b8] hover:text-white hover:bg-white/10'
-                      }`}
+                      } ${isGoingDark ? '' : 'rounded'}`}
                     >
                       Верхний
                     </button>
                     <button
                       onClick={() => handleSelectPerchSector('lower')}
-                      className={`px-2 py-0.5 rounded text-[10px] font-heading transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] font-heading transition-colors ${
                         activePerchSector === 'lower'
                           ? 'bg-[#0284c7] text-white font-bold shadow'
                           : 'text-[#94a3b8] hover:text-white hover:bg-white/10'
-                      }`}
+                      } ${isGoingDark ? '' : 'rounded'}`}
                     >
                       Нижний
                     </button>
@@ -770,14 +963,16 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                   }}
                   className="relative w-[420px] sm:w-[750px] md:w-[850px] aspect-[1700/2200] max-w-none flex-shrink-0"
                 >
-                  {/* Clean Authentic Map Illustration */}
+                  {/* Clean Authentic Map Illustration (Indigo Blueprint Filter in Going Dark) */}
                   <img
                     ref={mapImageRef}
                     src="./assets/images/spire-map-full.jpg"
                     alt="Официальная карта Шпиля"
                     loading="eager"
                     decoding="async"
-                    className="w-full h-full object-contain pointer-events-none"
+                    className={`w-full h-full object-contain pointer-events-none ${
+                      isGoingDark ? 'spire-map-artwork' : ''
+                    }`}
                     draggable={false}
                   />
 
@@ -938,25 +1133,47 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                                 e.stopPropagation();
                                 setActiveViewingPin(pin);
                               }}
-                              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-black/95 backdrop-blur-md border border-[#c59b27] rounded-xl shadow-2xl z-50 text-left pointer-events-auto cursor-pointer animate-in fade-in zoom-in-95 duration-150"
+                              className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 z-50 text-left pointer-events-auto cursor-pointer animate-in fade-in zoom-in-95 duration-150 ${
+                                isGoingDark
+                                  ? 'bg-[#03050b] border-2 border-[#38bdf8] shadow-[5px_5px_0px_#000000]'
+                                  : 'bg-black/95 backdrop-blur-md border border-[#c59b27] rounded-xl shadow-2xl'
+                              }`}
                             >
                               <div className="flex items-center justify-between gap-1 mb-1">
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#780016] text-white font-heading font-bold">
+                                <span
+                                  className={`text-[9px] px-1.5 py-0.2 font-heading font-bold ${
+                                    isGoingDark
+                                      ? 'bg-[#b91c1c] text-white border border-black'
+                                      : 'rounded bg-[#780016] text-white'
+                                  }`}
+                                >
                                   {pin.domain || 'Локация'}
                                 </span>
-                                <span className="text-[9px] text-[#959085]">
+                                <span className={`text-[9px] ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#959085]'}`}>
                                   {districts.find(d => d.id === pin.districtId)?.nameRu || ''}
                                 </span>
                               </div>
-                              <h4 className="font-heading font-bold text-xs text-[#f0cb78] leading-tight">
+                              <h4
+                                className={`font-heading font-bold text-xs leading-tight ${
+                                  isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'
+                                }`}
+                              >
                                 {pin.name}
                               </h4>
                               {pin.tooltip && (
-                                <p className="text-[10px] text-[#ccc5b8] mt-1 line-clamp-3 leading-relaxed">
+                                <p
+                                  className={`text-[10px] mt-1 line-clamp-3 leading-relaxed ${
+                                    isGoingDark ? 'text-[#cbd5e1]' : 'text-[#ccc5b8]'
+                                  }`}
+                                >
                                   {pin.tooltip}
                                 </p>
                               )}
-                              <div className="mt-2 pt-1.5 border-t border-[#3e321e] flex items-center justify-between text-[10px] text-[#e5b83b] font-heading font-semibold">
+                              <div
+                                className={`mt-2 pt-1.5 border-t flex items-center justify-between text-[10px] font-heading font-semibold ${
+                                  isGoingDark ? 'border-black text-[#7dd3fc]' : 'border-[#3e321e] text-[#e5b83b]'
+                                }`}
+                              >
                                 <span>Открыть справку</span>
                                 <ArrowRight size={11} />
                               </div>
@@ -970,10 +1187,20 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               </div>
 
               {/* Bottom Tip Bar */}
-              <div className="bg-black/85 backdrop-blur-md px-3 py-1.5 border-t border-[#2b3040] flex items-center justify-between gap-2 text-[11px] text-[#878072] flex-shrink-0">
+              <div
+                className={`px-3 py-1.5 border-t flex items-center justify-between gap-2 text-[11px] flex-shrink-0 ${
+                  isGoingDark
+                    ? 'bg-[#03050b] border-t-2 border-black text-[#94a3b8]'
+                    : 'bg-black/85 backdrop-blur-md border-[#2b3040] text-[#878072]'
+                }`}
+              >
                 <span className="hidden sm:inline">Колесико: зум • Перетаскивание: панорама</span>
                 <span className="sm:hidden">1 палец: сдвиг • 2 пальца: зум</span>
-                <span className="text-[#c59b27] font-heading font-semibold truncate">
+                <span
+                  className={`font-heading font-semibold truncate ${
+                    isGoingDark ? 'text-[#7dd3fc]' : 'text-[#c59b27]'
+                  }`}
+                >
                   {pins.length === 0 ? 'Нажмите «Метка», чтобы добавить' : `Метки: ${pins.length}`}
                 </span>
               </div>
@@ -981,29 +1208,54 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
           </div>
 
           {/* 3. Right: District Lore Dossier (4 cols on xl; flows naturally below map on mobile) */}
-          <div className="xl:col-span-4 bg-[#0e1017] border border-[#453416] rounded-xl p-4 sm:p-5 shadow-2xl space-y-4 flex flex-col xl:min-h-0 xl:h-full xl:overflow-hidden">
-            
+          <div
+            className={`xl:col-span-4 p-4 sm:p-5 space-y-4 flex flex-col xl:min-h-0 xl:h-full xl:overflow-hidden ${
+              isGoingDark
+                ? 'bg-[#081022] border-2 border-black shadow-[6px_6px_0px_#000000]'
+                : 'bg-[#0e1017] border border-[#453416] rounded-xl shadow-2xl'
+            }`}
+          >
             {/* Dossier Header */}
             <div className="flex-shrink-0">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-[10px] font-heading font-semibold px-2 py-0.5 rounded bg-[#261f12] text-[#c59b27] border border-[#4a3b14]">
+                <span
+                  className={`text-[10px] font-semibold px-2 py-0.5 ${
+                    isGoingDark
+                      ? 'font-mono bg-[#03050b] text-[#7dd3fc] border-2 border-black'
+                      : 'rounded font-heading bg-[#261f12] text-[#c59b27] border border-[#4a3b14]'
+                  }`}
+                >
                   {activeDistrict.level}
                 </span>
-                <span className="text-xs text-[#878072] font-mono uppercase tracking-widest">
+                <span
+                  className={`text-xs font-mono uppercase tracking-widest ${
+                    isGoingDark ? 'text-[#94a3b8]' : 'text-[#878072]'
+                  }`}
+                >
                   {activeDistrict.nameEn}
                 </span>
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-heading font-black text-[#f0cb78]">
+              <h3
+                className={`text-xl sm:text-2xl font-heading font-black ${
+                  isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'
+                }`}
+              >
                 {activeDistrict.nameRu}
               </h3>
 
               <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                <span className="text-[#878072] text-[11px] mr-1">Сферы:</span>
+                <span className={`text-[11px] mr-1 ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#878072]'}`}>
+                  Сферы:
+                </span>
                 {activeDistrict.domains.map((dom, i) => (
                   <span
                     key={i}
-                    className="px-2 py-0.2 rounded bg-[#1b2333] text-[#9fcbf5] border border-[#2b3a54] text-[10px] font-medium"
+                    className={`px-2 py-0.2 text-[10px] font-medium ${
+                      isGoingDark
+                        ? 'bg-[#0b152c] text-[#7dd3fc] border border-black'
+                        : 'rounded bg-[#1b2333] text-[#9fcbf5] border border-[#2b3a54]'
+                    }`}
                   >
                     {dom}
                   </span>
@@ -1012,8 +1264,14 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               {/* Perch Special Encircling Callout */}
               {isPerchActive && (
-                <div className="mt-2 p-2 rounded-lg bg-[#0e1726] border border-[#2563eb]/50 text-xs text-[#93c5fd] flex items-start gap-2">
-                  <Globe size={15} className="text-[#60a5fa] flex-shrink-0 mt-0.5" />
+                <div
+                  className={`mt-2 p-2 border text-xs flex items-start gap-2 ${
+                    isGoingDark
+                      ? 'bg-[#040812] border-2 border-[#38bdf8] text-[#dbeafe]'
+                      : 'rounded-lg bg-[#0e1726] border-[#2563eb]/50 text-[#93c5fd]'
+                  }`}
+                >
+                  <Globe size={15} className={`${isGoingDark ? 'text-[#38bdf8]' : 'text-[#60a5fa]'} flex-shrink-0 mt-0.5`} />
                   <span className="leading-snug">
                     <strong>Опоясывающий район:</strong> Насест не имеет единой точки — он огибает внешнюю границу Шпиля по всему периметру башни на высоте полумили над землей.
                   </span>
@@ -1023,9 +1281,13 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               {onNavigateToLore && (
                 <button
                   onClick={() => onNavigateToLore(activeDistrict.id)}
-                  className="mt-2.5 w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-[#780016] hover:bg-[#99001c] text-white text-xs font-heading font-semibold transition-colors shadow border border-[#c59b27]/30"
+                  className={`mt-2.5 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-white text-xs font-heading font-semibold transition-colors ${
+                    isGoingDark
+                      ? 'bg-[#b91c1c] hover:bg-[#dc2626] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'rounded-lg bg-[#780016] hover:bg-[#99001c] shadow border border-[#c59b27]/30'
+                  }`}
                 >
-                  <BookOpen size={14} className="text-[#f0ca5b]" />
+                  <BookOpen size={14} className={isGoingDark ? 'text-white' : 'text-[#f0ca5b]'} />
                   <span>Читать в Хрониках Шпиля</span>
                 </button>
               )}
@@ -1034,49 +1296,91 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
             {/* Scrollable Dossier Content (inside xl panel on desktop, inline flow on mobile) */}
             <div className="xl:flex-1 xl:overflow-y-auto space-y-3.5 xl:pr-1">
               {/* District Crop Art */}
-              <div className="w-full rounded-lg border border-[#5e4713] bg-[#07080c] overflow-hidden shadow-lg flex-shrink-0">
-                <div className="relative h-36 w-full bg-[#050608]">
+              <div
+                className={`w-full overflow-hidden flex-shrink-0 border ${
+                  isGoingDark
+                    ? 'bg-[#03050b] border-2 border-black shadow-[4px_4px_0px_#000000]'
+                    : 'rounded-lg bg-[#07080c] border-[#5e4713] shadow-lg'
+                }`}
+              >
+                <div className={`relative h-36 w-full ${isGoingDark ? 'bg-[#03050b]' : 'bg-[#050608]'}`}>
                   <img
                     src={`./assets/images/districts/${activeDistrict.id}.jpg`}
                     alt={`Карта ${activeDistrict.nameRu}`}
-                    className="w-full h-full object-cover object-center filter contrast-110"
+                    className={`w-full h-full object-cover object-center ${
+                      isGoingDark ? 'spire-map-artwork' : 'filter contrast-110'
+                    }`}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = './assets/images/spire-map-full.jpg';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e1017] via-transparent to-transparent pointer-events-none" />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-t ${
+                      isGoingDark ? 'from-[#081022]' : 'from-[#0e1017]'
+                    } via-transparent to-transparent pointer-events-none`}
+                  />
                 </div>
               </div>
 
               {/* Official Quote */}
               {activeDistrict.bookQuote && (
-                <div className="bg-[#1c1115] border-l-4 border-[#8f1d2e] p-3 rounded-r-lg shadow-inner space-y-1">
-                  <div className="flex items-center gap-1.5 text-[10px] font-heading font-bold uppercase tracking-wider text-[#e64c65]">
+                <div
+                  className={`border-l-4 p-3 space-y-1 ${
+                    isGoingDark
+                      ? 'bg-[#040812] border-[#38bdf8] border-y-2 border-r-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'bg-[#1c1115] border-[#8f1d2e] rounded-r-lg shadow-inner'
+                  }`}
+                >
+                  <div
+                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${
+                      isGoingDark ? 'font-mono text-[#7dd3fc]' : 'font-heading text-[#e64c65]'
+                    }`}
+                  >
                     <BookOpen size={12} /> Книга правил Spire
                   </div>
-                  <p className="text-xs text-[#f2ede4] font-flavor italic leading-relaxed">
+                  <p className={`text-xs font-flavor italic leading-relaxed ${isGoingDark ? 'text-[#e2e8f0]' : 'text-[#f2ede4]'}`}>
                     «{activeDistrict.bookQuote}»
                   </p>
                 </div>
               )}
 
               {/* Long Description */}
-              <div className="space-y-1.5 bg-[#0a0c12] p-3.5 rounded-lg border border-[#232738]">
-                <h4 className="text-[11px] font-heading font-bold text-[#c59b27] uppercase tracking-wider flex items-center gap-1.5">
+              <div
+                className={`space-y-1.5 p-3.5 border ${
+                  isGoingDark
+                    ? 'bg-[#040812] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                    : 'bg-[#0a0c12] rounded-lg border-[#232738]'
+                }`}
+              >
+                <h4
+                  className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    isGoingDark ? 'font-mono text-[#7dd3fc]' : 'font-heading text-[#c59b27]'
+                  }`}
+                >
                   <Scroll size={13} /> Описание и сущность
                 </h4>
-                <p className="text-xs text-[#dcd7cb] leading-relaxed">
+                <p className={`text-xs leading-relaxed ${isGoingDark ? 'text-[#cbd5e1]' : 'text-[#dcd7cb]'}`}>
                   {activeDistrict.longDescription || activeDistrict.description}
                 </p>
               </div>
 
               {/* Atmosphere */}
               {activeDistrict.atmosphere && (
-                <div className="bg-[#10131e] p-3 rounded-lg border border-[#20293b] space-y-1">
-                  <h4 className="text-[10px] font-heading font-bold text-[#60a5fa] uppercase tracking-wider flex items-center gap-1.5">
+                <div
+                  className={`p-3 border space-y-1 ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'bg-[#10131e] rounded-lg border-[#20293b]'
+                  }`}
+                >
+                  <h4
+                    className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                      isGoingDark ? 'font-mono text-[#38bdf8]' : 'font-heading text-[#60a5fa]'
+                    }`}
+                  >
                     <Sparkles size={12} /> Атмосфера и ритм
                   </h4>
-                  <p className="text-xs text-[#cad5e8] leading-relaxed italic">
+                  <p className={`text-xs leading-relaxed italic ${isGoingDark ? 'text-[#dbeafe]' : 'text-[#cad5e8]'}`}>
                     {activeDistrict.atmosphere}
                   </p>
                 </div>
@@ -1084,9 +1388,19 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               {/* Landmarks */}
               {activeDistrict.landmarks && activeDistrict.landmarks.length > 0 && (
-                <div className="space-y-1.5 bg-[#0a0c12] p-3 rounded-lg border border-[#24293a]">
-                  <h4 className="text-[11px] font-heading font-bold text-[#f0cb78] uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin size={12} className="text-[#c59b27]" />
+                <div
+                  className={`space-y-1.5 p-3 border ${
+                    isGoingDark
+                      ? 'bg-[#040812] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'bg-[#0a0c12] rounded-lg border-[#24293a]'
+                  }`}
+                >
+                  <h4
+                    className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                      isGoingDark ? 'font-mono text-[#7dd3fc]' : 'font-heading text-[#f0cb78]'
+                    }`}
+                  >
+                    <MapPin size={12} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
                     Ключевые места ({activeDistrict.landmarks.length})
                   </h4>
 
@@ -1097,23 +1411,37 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                         <div
                           key={i}
                           onClick={() => setExpandedLandmark(isExpanded ? null : lm.name)}
-                          className={`p-2 rounded-lg border transition-all cursor-pointer ${
-                            isExpanded
-                              ? 'bg-[#181c28] border-[#c59b27]'
-                              : 'bg-[#10121a] border-[#222738] hover:border-[#524115]'
+                          className={`p-2 border transition-all cursor-pointer ${
+                            isGoingDark
+                              ? isExpanded
+                                ? 'bg-[#0d1c3d] border-2 border-[#38bdf8]'
+                                : 'bg-[#0b1326] border-2 border-black hover:border-[#38bdf8]'
+                              : isExpanded
+                                ? 'rounded-lg bg-[#181c28] border-[#c59b27]'
+                                : 'rounded-lg bg-[#10121a] border-[#222738] hover:border-[#524115]'
                           }`}
                         >
-                          <div className="flex items-center justify-between text-xs font-semibold text-[#f0cb78]">
+                          <div
+                            className={`flex items-center justify-between text-xs font-semibold ${
+                              isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'
+                            }`}
+                          >
                             <span>{lm.name}</span>
-                            <span className="text-[10px] text-[#959085]">
+                            <span className={`text-[10px] ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
                               {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                             </span>
                           </div>
-                          <p className="mt-1 text-[11px] text-[#d4cebf] leading-relaxed">
+                          <p className={`mt-1 text-[11px] leading-relaxed ${isGoingDark ? 'text-[#cbd5e1]' : 'text-[#d4cebf]'}`}>
                             {lm.desc}
                           </p>
                           {isExpanded && lm.details && (
-                            <div className="mt-2 pt-1.5 border-t border-[#2e3447] text-[11px] text-[#a8d1b5] bg-[#0c1410] p-2 rounded border border-[#1b3a26]">
+                            <div
+                              className={`mt-2 pt-1.5 text-[11px] p-2 border ${
+                                isGoingDark
+                                  ? 'border-2 border-black bg-[#040812] text-[#7dd3fc]'
+                                  : 'border-t border-[#2e3447] text-[#a8d1b5] bg-[#0c1410] rounded border-[#1b3a26]'
+                              }`}
+                            >
                               {lm.details}
                             </div>
                           )}
@@ -1126,14 +1454,24 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               {/* Rumors */}
               {activeDistrict.rumorsAndDangers && activeDistrict.rumorsAndDangers.length > 0 && (
-                <div className="bg-[#171115] p-3 rounded-lg border border-[#4a1c27] space-y-1">
-                  <h4 className="text-[10px] font-heading font-bold text-[#f87171] uppercase tracking-wider flex items-center gap-1.5">
+                <div
+                  className={`p-3 border space-y-1 ${
+                    isGoingDark
+                      ? 'bg-[#1a0a16] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'bg-[#171115] rounded-lg border-[#4a1c27]'
+                  }`}
+                >
+                  <h4
+                    className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                      isGoingDark ? 'font-mono text-[#fda4af]' : 'font-heading text-[#f87171]'
+                    }`}
+                  >
                     <Flame size={12} /> Слухи и зацепки
                   </h4>
-                  <ul className="space-y-1 text-[11px] text-[#decacb]">
+                  <ul className={`space-y-1 text-[11px] ${isGoingDark ? 'text-[#e2e8f0]' : 'text-[#decacb]'}`}>
                     {activeDistrict.rumorsAndDangers.map((rumor, i) => (
                       <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-[#e64c65] font-bold">•</span>
+                        <span className={`font-bold ${isGoingDark ? 'text-[#f43f5e]' : 'text-[#e64c65]'}`}>•</span>
                         <span>{rumor}</span>
                       </li>
                     ))}
@@ -1157,26 +1495,44 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                 const cfg = SPIRE_STRATA.find(s => s.id === dist.id);
                 if (cfg) handleSelectStratum(cfg);
               }}
-              className="p-4 rounded-xl bg-[#0d0f17] border border-[#262a3b] hover:border-[#c59b27] transition-all cursor-pointer space-y-2.5 group"
+              className={`spire-card-shell p-4 border transition-colors cursor-pointer space-y-2.5 group ${
+                isGoingDark
+                  ? 'bg-[#081022] border-2 border-black hover:border-[#38bdf8] shadow-[5px_5px_0px_#000000]'
+                  : 'rounded-xl bg-[#0d0f17] border-[#262a3b] hover:border-[#c59b27]'
+              }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-heading font-semibold px-2 py-0.5 rounded bg-[#261f12] text-[#c59b27] border border-[#4a3b14]">
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 ${
+                    isGoingDark
+                      ? 'font-mono bg-[#03050b] text-[#7dd3fc] border-2 border-black'
+                      : 'rounded font-heading bg-[#261f12] text-[#c59b27] border border-[#4a3b14]'
+                  }`}
+                >
                   {dist.level}
                 </span>
-                <span className="text-xs text-[#878072] font-mono uppercase tracking-wider">
+                <span className={`text-xs font-mono uppercase tracking-wider ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#878072]'}`}>
                   {dist.nameEn}
                 </span>
               </div>
 
-              <h3 className="text-lg font-heading font-bold text-[#e5b83b] group-hover:text-[#f0cb78] transition-colors">
+              <h3
+                className={`text-lg font-heading font-bold transition-colors ${
+                  isGoingDark ? 'text-[#f0f6ff] group-hover:text-[#7dd3fc]' : 'text-[#e5b83b] group-hover:text-[#f0cb78]'
+                }`}
+              >
                 {dist.nameRu}
               </h3>
 
-              <p className="text-xs text-[#bfb8ac] line-clamp-2 leading-relaxed">
+              <p className={`text-xs line-clamp-2 leading-relaxed ${isGoingDark ? 'text-[#cbd5e1]' : 'text-[#bfb8ac]'}`}>
                 {dist.description}
               </p>
 
-              <div className="flex items-center justify-between text-xs text-[#c59b27] pt-2 border-t border-[#1e2333]">
+              <div
+                className={`flex items-center justify-between text-xs pt-2 border-t ${
+                  isGoingDark ? 'text-[#7dd3fc] border-black' : 'text-[#c59b27] border-[#1e2333]'
+                }`}
+              >
                 <span>{dist.landmarks?.length || 0} локаций</span>
                 <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                   Показать на карте <ArrowRight size={13} />
@@ -1190,58 +1546,88 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       {/* MODAL: ADD / EDIT CUSTOM PIN */}
       {editingPin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-lg w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 sm:p-6 shadow-2xl space-y-4 text-[#e0dacf]">
-            <div className="flex items-center justify-between border-b border-[#2e3346] pb-3">
-              <h3 className="font-heading font-bold text-lg text-[#f0cb78] flex items-center gap-2">
-                <MapPin size={18} className="text-[#c59b27]" />
+          <div
+            className={`max-w-lg w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-4 ${
+              isGoingDark
+                ? 'spire-modal-shell bg-[#081022] border-2 border-black shadow-[8px_8px_0px_#000000] text-[#e2e8f0]'
+                : 'bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl shadow-2xl text-[#e0dacf]'
+            }`}
+          >
+            <div className={`flex items-center justify-between border-b pb-3 ${isGoingDark ? 'border-black' : 'border-[#2e3346]'}`}>
+              <h3 className={`font-heading font-bold text-lg flex items-center gap-2 ${isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'}`}>
+                <MapPin size={18} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
                 Новая локация на карте Шпиля
               </h3>
-              <button onClick={() => setEditingPin(null)} className="text-[#959085] hover:text-white">
+              <button onClick={() => setEditingPin(null)} className={isGoingDark ? 'text-[#94a3b8] hover:text-white' : 'text-[#959085] hover:text-white'}>
                 <X size={18} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="text-[#959085] block mb-1 font-heading">Название места / объекта *</label>
+                <label className={`block mb-1 font-heading ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
+                  Название места / объекта *
+                </label>
                 <input
                   type="text"
                   value={editingPin.name || ''}
                   onChange={(e) => setEditingPin({ ...editingPin, name: e.target.value })}
                   placeholder="Например: Тайное святилище Луны, Притон контрабандистов..."
-                  className="w-full px-3.5 py-2 bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-sm text-[#f0ebe1] outline-none"
+                  className={`w-full px-3.5 py-2 text-sm outline-none ${
+                    isGoingDark
+                      ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                      : 'bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-[#f0ebe1]'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-[#959085] block mb-1 font-heading">Короткий тултип (виден при наведении на пин) *</label>
+                <label className={`block mb-1 font-heading ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
+                  Короткий тултип (виден при наведении на пин) *
+                </label>
                 <textarea
                   value={editingPin.tooltip || ''}
                   onChange={(e) => setEditingPin({ ...editingPin, tooltip: e.target.value })}
                   placeholder="1-2 предложения с атмосферой и сутью локации..."
                   rows={2}
-                  className="w-full px-3.5 py-2 bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-xs text-[#f0ebe1] outline-none"
+                  className={`w-full px-3.5 py-2 text-xs outline-none ${
+                    isGoingDark
+                      ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                      : 'bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-[#f0ebe1]'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-[#959085] block mb-1 font-heading">Справочный материал и зацепки (открывается по клику)</label>
+                <label className={`block mb-1 font-heading ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
+                  Справочный материал и зацепки (открывается по клику)
+                </label>
                 <textarea
                   value={editingPin.referenceMaterial || ''}
                   onChange={(e) => setEditingPin({ ...editingPin, referenceMaterial: e.target.value })}
                   placeholder="Подробный лор, NPC, слухи, тайны, зацепки для ведущего..."
                   rows={5}
-                  className="w-full px-3.5 py-2 bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-xs text-[#f0ebe1] outline-none font-serif leading-relaxed"
+                  className={`w-full px-3.5 py-2 text-xs outline-none font-serif leading-relaxed ${
+                    isGoingDark
+                      ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                      : 'bg-[#08090d] border border-[#2e3346] focus:border-[#c59b27] rounded-xl text-[#f0ebe1]'
+                  }`}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[#959085] block mb-1 font-heading">Привязка к району</label>
+                  <label className={`block mb-1 font-heading ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
+                    Привязка к району
+                  </label>
                   <select
                     value={editingPin.districtId || activeDistrict.id}
                     onChange={(e) => setEditingPin({ ...editingPin, districtId: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#08090d] border border-[#2e3346] rounded-xl text-xs text-[#f0ebe1] outline-none"
+                    className={`w-full px-3 py-2 text-xs outline-none ${
+                      isGoingDark
+                        ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                        : 'bg-[#08090d] border border-[#2e3346] rounded-xl text-[#f0ebe1]'
+                    }`}
                   >
                     {districts.map(d => (
                       <option key={d.id} value={d.id}>{d.nameRu}</option>
@@ -1250,11 +1636,17 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-[#959085] block mb-1 font-heading">Сфера влияния</label>
+                  <label className={`block mb-1 font-heading ${isGoingDark ? 'text-[#7dd3fc]' : 'text-[#959085]'}`}>
+                    Сфера влияния
+                  </label>
                   <select
                     value={editingPin.domain || 'Криминал'}
                     onChange={(e) => setEditingPin({ ...editingPin, domain: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#08090d] border border-[#2e3346] rounded-xl text-xs text-[#f0ebe1] outline-none"
+                    className={`w-full px-3 py-2 text-xs outline-none ${
+                      isGoingDark
+                        ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                        : 'bg-[#08090d] border border-[#2e3346] rounded-xl text-[#f0ebe1]'
+                    }`}
                   >
                     {DOMAINS_LIST.map(dom => (
                       <option key={dom} value={dom}>{dom}</option>
@@ -1264,14 +1656,18 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               </div>
 
               <div className="flex items-center gap-4 pt-1">
-                <span className="text-[#959085] font-heading">Цвет метки:</span>
+                <span className={`font-heading ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#959085]'}`}>Цвет метки:</span>
                 {(['gold', 'crimson', 'emerald', 'azure'] as const).map(color => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setEditingPin({ ...editingPin, color })}
                     className={`w-6 h-6 rounded-full border-2 transition-transform ${
-                      editingPin.color === color ? 'scale-125 border-white ring-2 ring-[#c59b27]' : 'border-transparent opacity-70'
+                      editingPin.color === color
+                        ? isGoingDark
+                          ? 'scale-125 border-white ring-2 ring-[#38bdf8]'
+                          : 'scale-125 border-white ring-2 ring-[#c59b27]'
+                        : 'border-transparent opacity-70'
                     } ${
                       color === 'gold' ? 'bg-[#c59b27]' :
                       color === 'crimson' ? 'bg-[#96001c]' :
@@ -1282,7 +1678,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-3 border-t border-[#2e3346]">
+            <div className={`flex justify-between items-center pt-3 border-t ${isGoingDark ? 'border-black' : 'border-[#2e3346]'}`}>
               {editingPin.id && pins.some(p => p.id === editingPin.id) ? (
                 <button
                   type="button"
@@ -1296,14 +1692,22 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => setEditingPin(null)}
-                  className="px-4 py-2 rounded-xl bg-[#141724] text-[#959085] hover:text-white text-xs font-heading"
+                  className={`px-4 py-2 text-xs font-heading ${
+                    isGoingDark
+                      ? 'bg-[#03050b] text-[#94a3b8] hover:text-white border-2 border-black'
+                      : 'rounded-xl bg-[#141724] text-[#959085] hover:text-white'
+                  }`}
                 >
                   Отмена
                 </button>
                 <button
                   onClick={handleSavePin}
                   disabled={!editingPin.name?.trim()}
-                  className="px-5 py-2 rounded-xl bg-[#780016] hover:bg-[#96001c] disabled:opacity-40 text-[#f0cb78] hover:text-white border border-[#c59b27] text-xs font-heading font-bold transition-all shadow-md"
+                  className={`px-5 py-2 text-xs font-heading font-bold transition-all disabled:opacity-40 ${
+                    isGoingDark
+                      ? 'bg-[#b91c1c] hover:bg-[#dc2626] text-white border-2 border-black shadow-[3px_3px_0px_#000000]'
+                      : 'rounded-xl bg-[#780016] hover:bg-[#96001c] text-[#f0cb78] hover:text-white border border-[#c59b27] shadow-md'
+                  }`}
                 >
                   Сохранить локацию
                 </button>
@@ -1316,7 +1720,13 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       {/* MODAL: VIEW PIN REFERENCE MATERIAL */}
       {activeViewingPin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0c0e15] border-2 border-[#543f16] rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-4 text-[#e0dacf] relative max-h-[85vh] overflow-y-auto">
+          <div
+            className={`max-w-2xl w-full p-6 sm:p-7 space-y-4 relative max-h-[85vh] overflow-y-auto ${
+              isGoingDark
+                ? 'spire-modal-shell bg-[#081022] border-2 border-black shadow-[8px_8px_0px_#000000] text-[#e2e8f0]'
+                : 'bg-[#0c0e15] border-2 border-[#543f16] rounded-2xl shadow-2xl text-[#e0dacf]'
+            }`}
+          >
             <button
               onClick={() => setActiveViewingPin(null)}
               className="absolute top-4 right-4 text-[#959085] hover:text-white p-1"
@@ -1326,23 +1736,41 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded text-[11px] font-heading font-bold bg-[#780016] text-[#f0cb78] border border-[#c59b27]">
+                <span
+                  className={`px-2.5 py-0.5 text-[11px] font-heading font-bold ${
+                    isGoingDark
+                      ? 'bg-[#b91c1c] text-white border border-black'
+                      : 'rounded bg-[#780016] text-[#f0cb78] border border-[#c59b27]'
+                  }`}
+                >
                   {activeViewingPin.domain || 'Сфера Шпиля'}
                 </span>
-                <span className="px-2.5 py-0.5 rounded text-[11px] font-heading bg-[#171a26] text-[#9fcbf5] border border-[#2b3549]">
+                <span
+                  className={`px-2.5 py-0.5 text-[11px] font-heading ${
+                    isGoingDark
+                      ? 'bg-[#03050b] text-[#7dd3fc] border border-black'
+                      : 'rounded bg-[#171a26] text-[#9fcbf5] border border-[#2b3549]'
+                  }`}
+                >
                   {districts.find(d => d.id === activeViewingPin.districtId)?.nameRu}
                 </span>
               </div>
 
-              <h2 className="text-2xl font-heading font-black text-[#f0cb78] pt-1">
+              <h2 className={`text-2xl font-heading font-black pt-1 ${isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'}`}>
                 {activeViewingPin.name}
               </h2>
             </div>
 
             {/* Tooltip Quote */}
             {activeViewingPin.tooltip && (
-              <div className="p-3.5 rounded-xl bg-[#151211] border-l-4 border-[#c59b27] border border-[#2b251d]">
-                <p className="text-xs sm:text-sm text-[#e0dacf] font-serif italic leading-relaxed">
+              <div
+                className={`p-3.5 border-l-4 ${
+                  isGoingDark
+                    ? 'bg-[#040812] border-[#38bdf8] border-y-2 border-r-2 border-black'
+                    : 'rounded-xl bg-[#151211] border-[#c59b27] border-[#2b251d]'
+                }`}
+              >
+                <p className={`text-xs sm:text-sm font-serif italic leading-relaxed ${isGoingDark ? 'text-[#dbeafe]' : 'text-[#e0dacf]'}`}>
                   «{activeViewingPin.tooltip}»
                 </p>
               </div>
@@ -1350,22 +1778,36 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
             {/* Full Reference Material */}
             <div className="space-y-1.5">
-              <h4 className="text-xs font-heading font-bold text-[#c59b27] uppercase tracking-wider flex items-center gap-2">
+              <h4
+                className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                  isGoingDark ? 'font-mono text-[#7dd3fc]' : 'font-heading text-[#c59b27]'
+                }`}
+              >
                 <BookOpen size={14} /> Справочные материалы и детали локации
               </h4>
-              <div className="bg-[#08090e] p-4 rounded-xl border border-[#232738] text-sm text-[#ded7ca] leading-relaxed whitespace-pre-wrap font-serif">
+              <div
+                className={`p-4 text-sm leading-relaxed whitespace-pre-wrap font-serif ${
+                  isGoingDark
+                    ? 'bg-[#040812] border-2 border-black text-[#e2e8f0]'
+                    : 'bg-[#08090e] rounded-xl border border-[#232738] text-[#ded7ca]'
+                }`}
+              >
                 {activeViewingPin.referenceMaterial || 'Справочный материал для этой локации пока не заполнен. Вы можете добавить описание в режиме редактирования.'}
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="flex justify-between items-center pt-2.5 border-t border-[#232738]">
+            <div className={`flex justify-between items-center pt-2.5 border-t ${isGoingDark ? 'border-black' : 'border-[#232738]'}`}>
               <button
                 onClick={() => {
                   setEditingPin(activeViewingPin);
                   setActiveViewingPin(null);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141724] hover:bg-[#780016] text-xs font-heading font-semibold text-[#f0cb78] hover:text-white border border-[#3e3422] transition-colors"
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-heading font-semibold transition-colors ${
+                  isGoingDark
+                    ? 'bg-[#0b152c] hover:bg-[#b91c1c] text-[#7dd3fc] hover:text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                    : 'rounded-lg bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white border border-[#3e3422]'
+                }`}
               >
                 <Edit3 size={13} />
                 <span>Редактировать справку</span>
@@ -1373,7 +1815,11 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               <button
                 onClick={() => setActiveViewingPin(null)}
-                className="px-4 py-1.5 rounded-lg bg-[#181a24] text-[#959085] hover:text-white text-xs font-heading"
+                className={`px-4 py-1.5 text-xs font-heading ${
+                  isGoingDark
+                    ? 'bg-[#03050b] text-[#94a3b8] hover:text-white border-2 border-black'
+                    : 'rounded-lg bg-[#181a24] text-[#959085] hover:text-white'
+                }`}
               >
                 Закрыть
               </button>
@@ -1385,10 +1831,16 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       {/* MODAL: PIN MANAGER / EXPORT / IMPORT */}
       {showPinManager && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0d0f17] border-2 border-[#3e3422] rounded-2xl max-w-xl w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 shadow-2xl space-y-3.5 text-[#e0dacf]">
-            <div className="flex items-center justify-between border-b border-[#252a3b] pb-2.5">
-              <h3 className="font-heading font-bold text-base text-[#f0cb78] flex items-center gap-2">
-                <MapPin size={16} className="text-[#c59b27]" />
+          <div
+            className={`max-w-xl w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 space-y-3.5 ${
+              isGoingDark
+                ? 'spire-modal-shell bg-[#081022] border-2 border-black shadow-[8px_8px_0px_#000000] text-[#e2e8f0]'
+                : 'bg-[#0d0f17] border-2 border-[#3e3422] rounded-2xl shadow-2xl text-[#e0dacf]'
+            }`}
+          >
+            <div className={`flex items-center justify-between border-b pb-2.5 ${isGoingDark ? 'border-black' : 'border-[#252a3b]'}`}>
+              <h3 className={`font-heading font-bold text-base flex items-center gap-2 ${isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'}`}>
+                <MapPin size={16} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />
                 Управление метками локаций ({pins.length})
               </h3>
               <button onClick={() => setShowPinManager(false)} className="text-[#959085] hover:text-white">
@@ -1398,17 +1850,24 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
             <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
               {pins.length === 0 ? (
-                <div className="text-center py-8 text-xs text-[#807a6f]">
+                <div className={`text-center py-8 text-xs ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#807a6f]'}`}>
                   У вас пока нет созданных меток. Включите «Поставить метку» и кликните по карте!
                 </div>
               ) : (
                 pins.map(p => (
-                  <div key={p.id} className="p-2.5 rounded-xl bg-[#080a10] border border-[#212638] flex items-center justify-between gap-3">
+                  <div
+                    key={p.id}
+                    className={`p-2.5 flex items-center justify-between gap-3 ${
+                      isGoingDark
+                        ? 'bg-[#040812] border-2 border-black shadow-[3px_3px_0px_#000000]'
+                        : 'rounded-xl bg-[#080a10] border border-[#212638]'
+                    }`}
+                  >
                     <div>
-                      <span className="font-heading font-bold text-xs text-[#f0cb78] block">
+                      <span className={`font-heading font-bold text-xs block ${isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'}`}>
                         {p.name}
                       </span>
-                      <span className="text-[10px] text-[#857e72]">
+                      <span className={`text-[10px] ${isGoingDark ? 'text-[#94a3b8]' : 'text-[#857e72]'}`}>
                         {districts.find(d => d.id === p.districtId)?.nameRu} • {p.domain}
                       </span>
                     </div>
@@ -1418,14 +1877,22 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                           setEditingPin(p);
                           setShowPinManager(false);
                         }}
-                        className="p-1.5 rounded-lg bg-[#141724] hover:bg-[#780016] text-[#c59b27] hover:text-white"
+                        className={`p-1.5 ${
+                          isGoingDark
+                            ? 'bg-[#0b152c] hover:bg-[#b91c1c] text-[#7dd3fc] hover:text-white border border-black'
+                            : 'rounded-lg bg-[#141724] hover:bg-[#780016] text-[#c59b27] hover:text-white'
+                        }`}
                         title="Редактировать"
                       >
                         <Edit3 size={13} />
                       </button>
                       <button
                         onClick={() => handleDeletePin(p.id)}
-                        className="p-1.5 rounded-lg bg-[#141724] hover:bg-red-950 text-[#857e72] hover:text-red-400"
+                        className={`p-1.5 ${
+                          isGoingDark
+                            ? 'bg-[#0b152c] hover:bg-red-950 text-[#94a3b8] hover:text-red-400 border border-black'
+                            : 'rounded-lg bg-[#141724] hover:bg-red-950 text-[#857e72] hover:text-red-400'
+                        }`}
                         title="Удалить"
                       >
                         <Trash2 size={13} />
@@ -1436,18 +1903,26 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               )}
             </div>
 
-            <div className="flex justify-between items-center pt-2.5 border-t border-[#252a3b] text-xs">
+            <div className={`flex justify-between items-center pt-2.5 border-t text-xs ${isGoingDark ? 'border-black' : 'border-[#252a3b]'}`}>
               <div className="flex gap-2">
                 <button
                   onClick={handleExportPins}
                   disabled={pins.length === 0}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#141724] hover:bg-[#202538] text-[#c59b27] disabled:opacity-40 border border-[#2b3042]"
+                  className={`flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 border ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#1e315c] text-[#7dd3fc] border-2 border-black'
+                      : 'rounded-lg bg-[#141724] hover:bg-[#202538] text-[#c59b27] border-[#2b3042]'
+                  }`}
                 >
                   <Download size={13} /> Экспорт JSON
                 </button>
                 <button
                   onClick={() => setShowImportDialog(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#141724] hover:bg-[#202538] text-[#9fcbf5] border border-[#2b3042]"
+                  className={`flex items-center gap-1 px-3 py-1.5 border ${
+                    isGoingDark
+                      ? 'bg-[#0b152c] hover:bg-[#1e315c] text-[#cbd5e1] border-2 border-black'
+                      : 'rounded-lg bg-[#141724] hover:bg-[#202538] text-[#9fcbf5] border-[#2b3042]'
+                  }`}
                 >
                   <Upload size={13} /> Импорт JSON
                 </button>
@@ -1455,7 +1930,11 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
               <button
                 onClick={() => setShowPinManager(false)}
-                className="px-4 py-1.5 rounded-lg bg-[#780016] text-white font-heading font-bold"
+                className={`px-4 py-1.5 font-heading font-bold ${
+                  isGoingDark
+                    ? 'bg-[#b91c1c] hover:bg-[#dc2626] text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                    : 'rounded-lg bg-[#780016] text-white'
+                }`}
               >
                 Готово
               </button>
@@ -1467,25 +1946,45 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       {/* MODAL: IMPORT JSON */}
       {showImportDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-md w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 space-y-3">
-            <h4 className="font-heading font-bold text-sm text-[#f0cb78]">Вставьте JSON меток:</h4>
+          <div
+            className={`max-w-md w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 space-y-3 ${
+              isGoingDark
+                ? 'spire-modal-shell bg-[#081022] border-2 border-black shadow-[8px_8px_0px_#000000]'
+                : 'bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl'
+            }`}
+          >
+            <h4 className={`font-heading font-bold text-sm ${isGoingDark ? 'text-[#f0f6ff]' : 'text-[#f0cb78]'}`}>
+              Вставьте JSON меток:
+            </h4>
             <textarea
               value={importJsonText}
               onChange={(e) => setImportJsonText(e.target.value)}
               placeholder="[ { id: ..., name: ... } ]"
               rows={6}
-              className="w-full px-3 py-2 bg-[#06070a] border border-[#2e3346] rounded-xl text-xs text-[#f0ebe1] outline-none font-mono"
+              className={`w-full px-3 py-2 text-xs outline-none font-mono ${
+                isGoingDark
+                  ? 'bg-[#03050b] border-2 border-black focus:border-[#38bdf8] text-white'
+                  : 'bg-[#06070a] border border-[#2e3346] rounded-xl text-[#f0ebe1]'
+              }`}
             />
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowImportDialog(false)}
-                className="px-3 py-1.5 rounded-lg bg-[#141724] text-xs text-[#8a8274]"
+                className={`px-3 py-1.5 text-xs ${
+                  isGoingDark
+                    ? 'bg-[#03050b] text-[#94a3b8] hover:text-white border-2 border-black'
+                    : 'rounded-lg bg-[#141724] text-[#8a8274]'
+                }`}
               >
                 Отмена
               </button>
               <button
                 onClick={handleImportPins}
-                className="px-4 py-1.5 rounded-lg bg-[#780016] text-xs text-[#f0cb78] font-bold border border-[#c59b27]"
+                className={`px-4 py-1.5 text-xs font-bold border ${
+                  isGoingDark
+                    ? 'bg-[#b91c1c] hover:bg-[#dc2626] text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                    : 'rounded-lg bg-[#780016] text-[#f0cb78] border-[#c59b27]'
+                }`}
               >
                 Импортировать
               </button>

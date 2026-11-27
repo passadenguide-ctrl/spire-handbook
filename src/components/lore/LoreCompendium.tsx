@@ -6,6 +6,7 @@ import { GodsView } from './GodsView';
 import { BookOpen, Users, Compass, Sparkles, Moon, Sun, Eye, Skull } from 'lucide-react';
 import { useRouter } from '../../router/RouterContext';
 import { LoreCategory } from '../../router/router';
+import { useTheme } from '../../theme/ThemeContext';
 import racesData from '../../data/lore/races.json';
 import godsDataRaw from '../../data/lore/gods.json';
 import { RaceInfo, ReligionsData } from '../../types/lore';
@@ -26,6 +27,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
   initialDistrictId,
 }) => {
   const { route, navigate } = useRouter();
+  const { isGoingDark } = useTheme();
   const currentTab: LoreTab = route.loreTab || 'intro';
 
   const stickyNavRef = useRef<HTMLDivElement>(null);
@@ -128,7 +130,13 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
   };
 
   const getGodSubIcon = (id: string, isSelected: boolean) => {
-    const color = isSelected ? 'text-[#e5b83b]' : 'text-[#6e685c]';
+    const color = isSelected
+      ? isGoingDark
+        ? 'text-[#7dd3fc]'
+        : 'text-[#e5b83b]'
+      : isGoingDark
+        ? 'text-[#64748b]'
+        : 'text-[#6e685c]';
     switch (id) {
       case 'damnu':
         return <Moon size={16} className={color} />;
@@ -155,12 +163,20 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
         ref={stickyNavRef}
         className={`sticky top-[120px] z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-2.5 pb-3 space-y-2.5 transition-all duration-200 ${
           isScrolled
-            ? 'bg-[#06080d]/95 backdrop-blur-md border-b border-[#302310]/90 shadow-[0_12px_32px_rgba(0,0,0,0.9)]'
+            ? isGoingDark
+              ? 'bg-[#03050b]/95 backdrop-blur-md border-b-2 border-black shadow-[0_8px_0px_rgba(0,0,0,0.85)]'
+              : 'bg-[#06080d]/95 backdrop-blur-md border-b border-[#302310]/90 shadow-[0_12px_32px_rgba(0,0,0,0.9)]'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
         {/* Row 1: Category Tabs Bar */}
-        <div className="flex items-center p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-lg">
+        <div
+          className={`flex items-center p-1.5 backdrop-blur-md ${
+            isGoingDark
+              ? 'bg-[#081022]/95 border-2 border-black shadow-[4px_4px_0px_#000000]'
+              : 'rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] shadow-lg'
+          }`}
+        >
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto md:flex-wrap no-scrollbar w-full">
             {tabs.map(tab => {
               const isSelected = currentTab === tab.id;
@@ -168,13 +184,27 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
-                    isSelected
-                      ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
-                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
+                  className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-heading font-semibold transition-all ${
+                    isGoingDark
+                      ? isSelected
+                        ? 'bg-[#b91c1c] text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                        : 'text-[#94a3b8] hover:text-white hover:bg-[#111d38] border border-transparent'
+                      : isSelected
+                        ? 'rounded-xl bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
+                        : 'rounded-xl text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                   }`}
                 >
-                  <span className={isSelected ? 'text-[#f0ca5b]' : 'text-[#6e685c]'}>
+                  <span
+                    className={
+                      isSelected
+                        ? isGoingDark
+                          ? 'text-[#7dd3fc]'
+                          : 'text-[#f0ca5b]'
+                        : isGoingDark
+                          ? 'text-[#64748b]'
+                          : 'text-[#6e685c]'
+                    }
+                  >
                     {tab.icon}
                   </span>
                   <span className="whitespace-nowrap">{tab.label}</span>
@@ -186,20 +216,41 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
 
         {/* Row 2 (Races): Race Selector Pill Tabs */}
         {currentTab === 'races' && (
-          <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
+          <div
+            className={`flex items-center gap-1.5 sm:gap-2 p-1.5 backdrop-blur-md overflow-x-auto md:flex-wrap no-scrollbar ${
+              isGoingDark
+                ? 'bg-[#081022]/95 border-2 border-black shadow-[4px_4px_0px_#000000]'
+                : 'rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] shadow-md'
+            }`}
+          >
             {races.map(race => {
               const isSelected = race.id === selectedRaceId;
               return (
                 <button
                   key={race.id}
                   onClick={() => handleSelectRace(race.id)}
-                  className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
-                    isSelected
-                      ? 'bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
-                      : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
+                  className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-heading font-semibold transition-all ${
+                    isGoingDark
+                      ? isSelected
+                        ? 'bg-[#b91c1c] text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                        : 'text-[#94a3b8] hover:text-white hover:bg-[#111d38] border border-transparent'
+                      : isSelected
+                        ? 'rounded-xl bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
+                        : 'rounded-xl text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                   }`}
                 >
-                  <Users size={15} className={isSelected ? 'text-[#e5b83b]' : 'text-[#6e685c]'} />
+                  <Users
+                    size={15}
+                    className={
+                      isSelected
+                        ? isGoingDark
+                          ? 'text-[#7dd3fc]'
+                          : 'text-[#e5b83b]'
+                        : isGoingDark
+                          ? 'text-[#64748b]'
+                          : 'text-[#6e685c]'
+                    }
+                  />
                   <span className="whitespace-nowrap">{race.nameRu}</span>
                 </button>
               );
@@ -210,17 +261,27 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
         {/* Row 2 & 3 (Gods): Religion Subsection & Three Faces Navigation */}
         {currentTab === 'gods' && (
           <>
-            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] backdrop-blur-md shadow-md overflow-x-auto md:flex-wrap no-scrollbar">
+            <div
+              className={`flex items-center gap-1.5 sm:gap-2 p-1.5 backdrop-blur-md overflow-x-auto md:flex-wrap no-scrollbar ${
+                isGoingDark
+                  ? 'bg-[#081022]/95 border-2 border-black shadow-[4px_4px_0px_#000000]'
+                  : 'rounded-2xl bg-[#090b11]/95 border border-[#3e2d14] shadow-md'
+              }`}
+            >
               {godSubsections.map(sub => {
                 const isSelected = sub.id === selectedGodSubId;
                 return (
                   <button
                     key={sub.id}
                     onClick={() => handleSelectGodSub(sub.id)}
-                    className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-heading font-semibold transition-all ${
-                      isSelected
-                        ? 'bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
-                        : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
+                    className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-heading font-semibold transition-all ${
+                      isGoingDark
+                        ? isSelected
+                          ? 'bg-[#b91c1c] text-white border-2 border-black shadow-[2px_2px_0px_#000000]'
+                          : 'text-[#94a3b8] hover:text-white hover:bg-[#111d38] border border-transparent'
+                        : isSelected
+                          ? 'rounded-xl bg-[#780016] text-[#ffffff] shadow-md border border-[#c59b27]/40'
+                          : 'rounded-xl text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#141724] border border-transparent'
                     }`}
                   >
                     {getGodSubIcon(sub.id, isSelected)}
@@ -231,7 +292,13 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
             </div>
 
             {currentGodSub.id === 'damnu' && godFaces.length > 0 && (
-              <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-xl bg-[#0d0f17]/95 border border-[#2b2518] backdrop-blur-md shadow-sm overflow-x-auto md:flex-wrap no-scrollbar">
+              <div
+                className={`flex items-center gap-1.5 sm:gap-2 p-1.5 backdrop-blur-md overflow-x-auto md:flex-wrap no-scrollbar ${
+                  isGoingDark
+                    ? 'bg-[#050a18]/95 border-2 border-black shadow-[3px_3px_0px_#000000]'
+                    : 'rounded-xl bg-[#0d0f17]/95 border border-[#2b2518] shadow-sm'
+                }`}
+              >
                 {godFaces.map(face => {
                   const isSelected = face.id === selectedGodFaceId;
                   const isPlaceholder = face.isPlaceholder;
@@ -240,16 +307,37 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
                     <button
                       key={face.id}
                       onClick={() => handleSelectGodFace(face.id)}
-                      className={`shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-heading font-medium transition-all ${
-                        isSelected
-                          ? 'bg-[#231418] text-[#f5d061] border border-[#780016] shadow-sm font-semibold'
-                          : 'text-[#8c8577] hover:text-[#d4cebf] hover:bg-[#141724] border border-transparent'
+                      className={`shrink-0 flex items-center gap-2 px-3 py-1.5 text-xs font-heading font-medium transition-all ${
+                        isGoingDark
+                          ? isSelected
+                            ? 'bg-[#0b1c3d] text-[#7dd3fc] border-2 border-[#38bdf8] shadow-[2px_2px_0px_#000000] font-semibold'
+                            : 'text-[#94a3b8] hover:text-white hover:bg-[#111d38] border border-transparent'
+                          : isSelected
+                            ? 'rounded-lg bg-[#231418] text-[#f5d061] border border-[#780016] shadow-sm font-semibold'
+                            : 'rounded-lg text-[#8c8577] hover:text-[#d4cebf] hover:bg-[#141724] border border-transparent'
                       }`}
                     >
-                      <Moon size={13} className={isSelected ? 'text-[#f5d061]' : 'text-[#5e584c]'} />
+                      <Moon
+                        size={13}
+                        className={
+                          isSelected
+                            ? isGoingDark
+                              ? 'text-[#38bdf8]'
+                              : 'text-[#f5d061]'
+                            : isGoingDark
+                              ? 'text-[#64748b]'
+                              : 'text-[#5e584c]'
+                        }
+                      />
                       <span className="whitespace-nowrap">{face.nameRu}</span>
                       {isPlaceholder && (
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#1f1b14] text-[#a89260] border border-[#3d321c]">
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 ${
+                            isGoingDark
+                              ? 'bg-[#03050b] text-[#7dd3fc] border border-black font-mono'
+                              : 'rounded bg-[#1f1b14] text-[#a89260] border border-[#3d321c]'
+                          }`}
+                        >
                           Скоро
                         </span>
                       )}

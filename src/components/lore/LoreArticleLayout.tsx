@@ -3,6 +3,7 @@ import { LoreTOCItem, LoreSectionBlock } from '../../types/lore';
 import { LoreTableOfContents } from './LoreTableOfContents';
 import { BurningScrollSpoiler } from './BurningScrollSpoiler';
 import { Flame, ShieldAlert, Sparkles, BookOpen, Quote, Info, Shield, Users } from 'lucide-react';
+import { useTheme } from '../../theme/ThemeContext';
 
 interface LoreArticleLayoutProps {
   id: string;
@@ -33,6 +34,8 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
   tocItems,
   actions
 }) => {
+  const { isGoingDark } = useTheme();
+
   // Generate TOC items if not explicitly passed
   const items: LoreTOCItem[] = tocItems || [
     { id: `${id}-overview`, title: 'Введение' },
@@ -41,30 +44,38 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
 
   const renderCallout = (callout: NonNullable<LoreSectionBlock['callout']>) => {
     let icon = <Info size={18} className="text-[#38bdf8]" />;
-    let borderClass = 'border-l-4 border-[#38bdf8] bg-[#0b1c2b]/80';
+    let borderClass = isGoingDark
+      ? 'border-2 border-black border-l-4 border-l-[#38bdf8] bg-[#0b152c] shadow-[4px_4px_0px_#000000]'
+      : 'rounded-r-xl border-l-4 border-[#38bdf8] bg-[#0b1c2b]/80 shadow-md';
     let titleClass = 'text-[#7dd3fc]';
 
     if (callout.type === 'secret') {
       icon = <Sparkles size={18} className="text-[#a855f7]" />;
-      borderClass = 'border-l-4 border-[#a855f7] bg-[#220d30]/80';
+      borderClass = isGoingDark
+        ? 'border-2 border-black border-l-4 border-l-[#a855f7] bg-[#160d2b] shadow-[4px_4px_0px_#000000]'
+        : 'rounded-r-xl border-l-4 border-[#a855f7] bg-[#220d30]/80 shadow-md';
       titleClass = 'text-[#d8b4fe]';
     } else if (callout.type === 'warning' || callout.type === 'danger') {
-      icon = <ShieldAlert size={18} className="text-[#ef4444]" />;
-      borderClass = 'border-l-4 border-[#ef4444] bg-[#2b0d12]/80';
-      titleClass = 'text-[#fca5a5]';
+      icon = <ShieldAlert size={18} className={isGoingDark ? 'text-[#f43f5e]' : 'text-[#ef4444]'} />;
+      borderClass = isGoingDark
+        ? 'border-2 border-black border-l-4 border-l-[#e11d48] bg-[#1e0a15] shadow-[4px_4px_0px_#000000]'
+        : 'rounded-r-xl border-l-4 border-[#ef4444] bg-[#2b0d12]/80 shadow-md';
+      titleClass = 'text-[#fda4af]';
     } else if (callout.type === 'quote') {
-      icon = <Quote size={18} className="text-[#c59b27]" />;
-      borderClass = 'border-l-4 border-[#c59b27] bg-[#231809]/80';
-      titleClass = 'text-[#f5c342]';
+      icon = <Quote size={18} className={isGoingDark ? 'text-[#38bdf8]' : 'text-[#c59b27]'} />;
+      borderClass = isGoingDark
+        ? 'border-2 border-black border-l-4 border-l-[#38bdf8] bg-[#0a1326] shadow-[4px_4px_0px_#000000]'
+        : 'rounded-r-xl border-l-4 border-[#c59b27] bg-[#231809]/80 shadow-md';
+      titleClass = isGoingDark ? 'text-[#7dd3fc]' : 'text-[#f5c342]';
     }
 
     return (
-      <div className={`my-6 p-4 sm:p-5 rounded-r-xl ${borderClass} shadow-md`}>
+      <div className={`my-6 p-4 sm:p-5 ${borderClass}`}>
         <div className="flex items-center gap-2.5 mb-2 font-heading font-bold text-sm tracking-wide">
           {icon}
           <span className={titleClass}>{callout.title}</span>
         </div>
-        <p className="text-sm font-body text-[#d6d0c2] leading-relaxed">
+        <p className={`text-sm font-body leading-relaxed ${isGoingDark ? 'text-[#dbeafe]' : 'text-[#d6d0c2]'}`}>
           {callout.text}
         </p>
       </div>
@@ -74,32 +85,63 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
   return (
     <div className="flex flex-col lg:flex-row gap-8 w-full">
       {/* Main Reading Column */}
-      <article className="flex-1 w-full min-w-0 bg-[#07090e]/90 backdrop-blur-md rounded-2xl border border-[#3e2d14] p-6 sm:p-8 lg:p-10 shadow-[0_8px_35px_rgba(0,0,0,0.9)]">
+      <article
+        className={`flex-1 w-full min-w-0 p-6 sm:p-8 lg:p-10 ${
+          isGoingDark
+            ? 'bg-[#081022]/95 border-2 border-black shadow-[6px_6px_0px_#000000]'
+            : 'bg-[#07090e]/90 backdrop-blur-md rounded-2xl border border-[#3e2d14] shadow-[0_8px_35px_rgba(0,0,0,0.9)]'
+        }`}
+      >
         {/* Article Header */}
         <header
           id={`${id}-overview`}
           style={{ scrollMarginTop: 'calc(var(--lore-sticky-bottom, 180px) + 20px)' }}
-          className="mb-8 border-b border-[#2b2112] pb-6"
+          className={`mb-8 pb-6 ${isGoingDark ? 'border-b-2 border-black' : 'border-b border-[#2b2112]'}`}
         >
           <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-            {subtitle && (
-              <span className="text-[11px] font-heading uppercase tracking-widest px-3 py-1 rounded-full bg-[#171b26] border border-[#3d2e1a] text-[#c59b27]">
-                {subtitle}
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-2">
+              {isGoingDark && (
+                <span className="spire-archive-stamp">АРХИВНАЯ СПРАВКА</span>
+              )}
+              {subtitle && (
+                <span
+                  className={`text-[11px] uppercase tracking-widest px-3 py-1 ${
+                    isGoingDark
+                      ? 'font-mono bg-[#03050b] border-2 border-black text-[#7dd3fc] shadow-[2px_2px_0px_#000000]'
+                      : 'font-heading rounded-full bg-[#171b26] border border-[#3d2e1a] text-[#c59b27]'
+                  }`}
+                >
+                  {subtitle}
+                </span>
+              )}
+            </div>
             {actions && <div className="flex items-center gap-2">{actions}</div>}
           </div>
 
-          <h1 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-[#f3ca52] tracking-wide leading-tight mb-4">
+          <h1
+            className={`font-heading font-black text-2xl sm:text-3xl lg:text-4xl tracking-wide leading-tight mb-4 ${
+              isGoingDark ? 'text-[#f0f6ff] drop-shadow-[2px_2px_0px_#000000]' : 'text-[#f3ca52]'
+            }`}
+          >
             {title}
           </h1>
 
           {/* Epigraph / Quote */}
           {quote && (
-            <div className="my-5 p-4 rounded-xl bg-[#0f121b] border-l-4 border-[#780016] text-[#c9c2b3] italic font-flavor text-base sm:text-lg leading-relaxed shadow-inner">
+            <div
+              className={`my-5 p-4 border-l-4 italic font-flavor text-base sm:text-lg leading-relaxed ${
+                isGoingDark
+                  ? 'bg-[#040812] border-[#38bdf8] border-y-2 border-r-2 border-black text-[#e2e8f0] shadow-[4px_4px_0px_#000000]'
+                  : 'rounded-xl bg-[#0f121b] border-[#780016] text-[#c9c2b3] shadow-inner'
+              }`}
+            >
               <p>{quote}</p>
               {quoteAuthor && (
-                <div className="text-right text-xs not-italic font-heading text-[#8a8274] mt-2 font-semibold">
+                <div
+                  className={`text-right text-xs not-italic font-heading mt-2 font-semibold ${
+                    isGoingDark ? 'text-[#7dd3fc]' : 'text-[#8a8274]'
+                  }`}
+                >
                   — {quoteAuthor}
                 </div>
               )}
@@ -109,12 +151,14 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
           {/* Hero Image if present - fitted frame hugging the artwork */}
           {image && (
             <figure
-              className={`my-6 mx-auto w-fit max-w-full rounded-2xl overflow-hidden border-2 transition-all duration-300 flex flex-col items-center bg-[#07090e] ${
-                id.includes('lekole')
-                  ? 'border-[#780016] shadow-[0_12px_40px_rgba(120,0,22,0.3)]'
+              className={`my-6 mx-auto w-fit max-w-full overflow-hidden border-2 transition-all duration-300 flex flex-col items-center ${
+                isGoingDark
+                  ? 'bg-[#040812] border-black shadow-[6px_6px_0px_#000000]'
+                  : id.includes('lekole')
+                  ? 'rounded-2xl bg-[#07090e] border-[#780016] shadow-[0_12px_40px_rgba(120,0,22,0.3)]'
                   : id.includes('lombre')
-                  ? 'border-[#4a2868] shadow-[0_12px_40px_rgba(74,40,104,0.3)]'
-                  : 'border-[#5c441c] shadow-[0_12px_40px_rgba(92,68,28,0.3)]'
+                  ? 'rounded-2xl bg-[#07090e] border-[#4a2868] shadow-[0_12px_40px_rgba(74,40,104,0.3)]'
+                  : 'rounded-2xl bg-[#07090e] border-[#5c441c] shadow-[0_12px_40px_rgba(92,68,28,0.3)]'
               }`}
             >
               <div className="relative overflow-hidden flex items-center justify-center">
@@ -126,7 +170,13 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                 />
               </div>
               {image.caption && (
-                <figcaption className="w-full px-4 py-2 bg-[#0a0d14] text-xs text-[#958e81] font-heading tracking-wide text-center border-t border-[#1e170e]">
+                <figcaption
+                  className={`w-full px-4 py-2 text-xs tracking-wide text-center border-t ${
+                    isGoingDark
+                      ? 'bg-[#03050b] text-[#7dd3fc] font-mono border-t-2 border-black'
+                      : 'bg-[#0a0d14] text-[#958e81] font-heading border-[#1e170e]'
+                  }`}
+                >
                   {image.caption}
                 </figcaption>
               )}
@@ -135,7 +185,11 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
 
           {/* Lead Paragraph */}
           {lead && (
-            <p className="text-base sm:text-lg text-[#ded7ca] font-body leading-relaxed whitespace-pre-line">
+            <p
+              className={`text-base sm:text-lg font-body leading-relaxed whitespace-pre-line ${
+                isGoingDark ? 'text-[#dbeafe]' : 'text-[#ded7ca]'
+              }`}
+            >
               {lead}
             </p>
           )}
@@ -143,26 +197,40 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
 
         {/* Article Sections */}
         <div className="space-y-12">
-          {sections.map((section, idx) => (
+          {sections.map((section) => (
             <section
               key={section.id}
               id={section.id}
               style={{ scrollMarginTop: 'calc(var(--lore-sticky-bottom, 180px) + 20px)' }}
-              className="pt-4 border-t border-[#1e170e]/80 first:border-t-0 first:pt-0"
+              className={`pt-4 border-t first:border-t-0 first:pt-0 ${
+                isGoingDark ? 'border-black/80' : 'border-[#1e170e]/80'
+              }`}
             >
-              <h2 className="font-heading font-bold text-xl sm:text-2xl text-[#e8c04d] tracking-wide mb-4 flex items-center gap-2">
-                <Flame size={18} className="text-[#780016] shrink-0" />
+              <h2
+                className={`font-heading font-bold text-xl sm:text-2xl tracking-wide mb-4 flex items-center gap-2 ${
+                  isGoingDark ? 'text-[#f0f6ff]' : 'text-[#e8c04d]'
+                }`}
+              >
+                <Flame size={18} className={`shrink-0 ${isGoingDark ? 'text-[#38bdf8]' : 'text-[#780016]'}`} />
                 <span>{section.title}</span>
               </h2>
 
               {section.lead && (
-                <p className="text-sm sm:text-base text-[#e0dacf] font-body font-medium leading-relaxed mb-4">
+                <p
+                  className={`text-sm sm:text-base font-body font-medium leading-relaxed mb-4 ${
+                    isGoingDark ? 'text-[#e2e8f0]' : 'text-[#e0dacf]'
+                  }`}
+                >
                   {section.lead}
                 </p>
               )}
 
               {section.paragraphs && section.paragraphs.length > 0 && (
-                <div className="space-y-3.5 mb-5 text-sm sm:text-base font-body text-[#c4bcb0] leading-relaxed">
+                <div
+                  className={`space-y-3.5 mb-5 text-sm sm:text-base font-body leading-relaxed ${
+                    isGoingDark ? 'text-[#cbd5e1]' : 'text-[#c4bcb0]'
+                  }`}
+                >
                   {section.paragraphs.map((para, pIdx) => (
                     <p key={pIdx}>{para}</p>
                   ))}
@@ -187,7 +255,6 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
 
                     if (isLekole) {
                       if (bIdx === 0) {
-                        // Мудрость (Wisdom - Smoldering Amber)
                         cardClasses = 'bg-gradient-to-br from-[#2a130f]/95 via-[#190c0a]/95 to-[#0b0506]/95 border-2 border-[#853422] shadow-[0_0_25px_rgba(200,80,50,0.18)] hover:border-[#b84e36]';
                         ambientColor = 'bg-[#ea580c]';
                         badgeClasses = 'bg-[#3f1910] text-[#fdba74] border-[#ea580c]/40';
@@ -196,7 +263,6 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                         defaultBadge = 'Священная добродетель V';
                         virtueIcon = <BookOpen size={20} className="text-[#fdba74]" />;
                       } else {
-                        // Ярость (Fury - Revolutionary Crimson Flame)
                         cardClasses = 'bg-gradient-to-br from-[#300e13]/95 via-[#1a070a]/95 to-[#0b0406]/95 border-2 border-[#991b1b] shadow-[0_0_25px_rgba(220,38,38,0.25)] hover:border-[#dc2626]';
                         ambientColor = 'bg-[#ef4444]';
                         badgeClasses = 'bg-[#450a0a] text-[#fca5a5] border-[#ef4444]/40';
@@ -207,7 +273,6 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                       }
                     } else if (isLombre) {
                       if (bIdx === 0) {
-                        // Изящество (Subtlety - Shadow Amethyst)
                         cardClasses = 'bg-gradient-to-br from-[#1a1226]/95 via-[#0e0a17]/95 to-[#06040e]/95 border-2 border-[#6b428c] shadow-[0_0_25px_rgba(168,85,247,0.18)] hover:border-[#935ec0]';
                         ambientColor = 'bg-[#a855f7]';
                         badgeClasses = 'bg-[#241338] text-[#d8b4fe] border-[#a855f7]/40';
@@ -216,7 +281,6 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                         defaultBadge = 'Священная добродетель III';
                         virtueIcon = <Sparkles size={20} className="text-[#d8b4fe]" />;
                       } else {
-                        // Бдительность (Vigilance - Deep Midnight Cyan)
                         cardClasses = 'bg-gradient-to-br from-[#121826]/95 via-[#0b0e17]/95 to-[#06080e]/95 border-2 border-[#3b5982] shadow-[0_0_25px_rgba(56,189,248,0.18)] hover:border-[#537fb8]';
                         ambientColor = 'bg-[#38bdf8]';
                         badgeClasses = 'bg-[#132338] text-[#7dd3fc] border-[#38bdf8]/40';
@@ -226,7 +290,6 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                         virtueIcon = <Shield size={20} className="text-[#7dd3fc]" />;
                       }
                     } else {
-                      // Limye (Default: Silver & Gold)
                       if (bIdx === 1) {
                         cardClasses = 'bg-gradient-to-br from-[#211a12]/95 via-[#13100b]/95 to-[#06080e]/95 border-2 border-[#7c5e26] shadow-[0_0_25px_rgba(210,165,60,0.18)] hover:border-[#b8913d]';
                         ambientColor = 'bg-[#eab308]';
@@ -241,24 +304,28 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                     return (
                       <div
                         key={bIdx}
-                        className={`relative p-5 sm:p-6 rounded-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between ${cardClasses}`}
+                        className={`relative p-5 sm:p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between ${cardClasses} ${
+                          isGoingDark ? '!rounded-none !border-black !shadow-[5px_5px_0px_#000000]' : 'rounded-2xl'
+                        }`}
                       >
                         {/* Glowing ambient light */}
-                        <div
-                          className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-2xl pointer-events-none opacity-40 ${ambientColor}`}
-                        />
+                        {!isGoingDark && (
+                          <div
+                            className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-2xl pointer-events-none opacity-40 ${ambientColor}`}
+                          />
+                        )}
 
                         <div>
                           {/* Header badge */}
                           <div className="flex items-center justify-between gap-2 mb-3">
                             <span
-                              className={`text-[10px] font-heading font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${badgeClasses}`}
+                              className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 border ${badgeClasses} ${
+                                isGoingDark ? '!rounded-none !border-black font-mono' : 'rounded-full font-heading'
+                              }`}
                             >
                               {bullet.badge || defaultBadge}
                             </span>
-                            <div>
-                              {virtueIcon}
-                            </div>
+                            <div>{virtueIcon}</div>
                           </div>
 
                           {/* Title */}
@@ -271,14 +338,20 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                           {/* Sacred Creed / Quote if present */}
                           {bullet.quote && (
                             <div
-                              className={`my-3 p-3 rounded-xl border-l-4 italic font-flavor text-xs sm:text-sm leading-relaxed ${quoteClasses}`}
+                              className={`my-3 p-3 border-l-4 italic font-flavor text-xs sm:text-sm leading-relaxed ${quoteClasses} ${
+                                isGoingDark ? 'rounded-none' : 'rounded-xl'
+                              }`}
                             >
                               {bullet.quote}
                             </div>
                           )}
 
                           {/* Description */}
-                          <p className="text-xs sm:text-sm font-body text-[#c7bfb3] leading-relaxed mt-2">
+                          <p
+                            className={`text-xs sm:text-sm font-body leading-relaxed mt-2 ${
+                              isGoingDark ? 'text-[#dbeafe]' : 'text-[#c7bfb3]'
+                            }`}
+                          >
                             {bullet.description}
                           </p>
                         </div>
@@ -291,14 +364,26 @@ export const LoreArticleLayout: React.FC<LoreArticleLayoutProps> = ({
                   {section.bullets.map((bullet, bIdx) => (
                     <div
                       key={bIdx}
-                      className="p-4 sm:p-5 rounded-xl bg-[#0b0e16]/80 border border-[#23293a]/80 hover:border-[#780016]/60 transition-colors"
+                      className={`p-4 sm:p-5 transition-colors ${
+                        isGoingDark
+                          ? 'bg-[#0b1326] border-2 border-black hover:border-[#38bdf8] shadow-[4px_4px_0px_#000000]'
+                          : 'rounded-xl bg-[#0b0e16]/80 border border-[#23293a]/80 hover:border-[#780016]/60'
+                      }`}
                     >
                       {bullet.term && (
-                        <div className="font-heading font-extrabold text-sm sm:text-base text-[#f0ca5b] mb-1.5 flex items-center justify-between">
+                        <div
+                          className={`font-heading font-extrabold text-sm sm:text-base mb-1.5 flex items-center justify-between ${
+                            isGoingDark ? 'text-[#7dd3fc]' : 'text-[#f0ca5b]'
+                          }`}
+                        >
                           <span>{bullet.term}</span>
                         </div>
                       )}
-                      <div className="text-xs sm:text-sm font-body text-[#b8b0a2] leading-relaxed whitespace-pre-line">
+                      <div
+                        className={`text-xs sm:text-sm font-body leading-relaxed whitespace-pre-line ${
+                          isGoingDark ? 'text-[#cbd5e1]' : 'text-[#b8b0a2]'
+                        }`}
+                      >
                         {bullet.description}
                       </div>
 

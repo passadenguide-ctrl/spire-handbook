@@ -10,12 +10,60 @@
     --spire-gold-dark: #6e5210;
     --spire-silver: #94a3b8;
     --spire-bg: #050608;
-    --spire-card: #0c0e15;
-    --spire-card-hover: #141722;
-    --spire-border: #222636;
+    --spire-header-bg: rgba(6, 8, 13, 0.95);
+    --spire-subbar-bg: rgba(7, 10, 16, 0.95);
+    --spire-card: #0e1017;
+    --spire-card-alt: #11131c;
+    --spire-card-hover: #161824;
+    --spire-inset: #08090d;
+    --spire-border: #2b2f40;
     --spire-border-gold: #4e3a13;
+    --spire-border-strong: #5e4713;
+    --spire-accent: #780016;
+    --spire-accent-hover: #99001c;
+    --spire-secondary: #c59b27;
+    --spire-secondary-bright: #e5b83b;
+    --spire-secondary-text: #f0cb78;
     --spire-text: #e5ded2;
-    --spire-text-muted: #8c8577;
+    --spire-text-soft: #ccc5b8;
+    --spire-text-muted: #959085;
+    --spire-danger-text: #f2aab8;
+    --spire-info-text: #9fcbf5;
+    --spire-shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.65);
+    --spire-shadow-hover: 0 0 35px rgba(120, 0, 22, 0.45);
+  }
+
+  :root[data-theme="going-dark"] {
+    /* Spire Corebook Indigo + Mike Mignola (Hellboy) Comic Ink Palette */
+    --spire-crimson: #b91c1c;
+    --spire-crimson-light: #dc2626;
+    --spire-crimson-dark: #450a0a;
+    --spire-gold: #38bdf8;
+    --spire-gold-light: #7dd3fc;
+    --spire-gold-dark: #0369a1;
+    --spire-silver: #cbd5e1;
+    --spire-bg: #03050b;
+    --spire-header-bg: rgba(4, 7, 15, 0.97);
+    --spire-subbar-bg: rgba(5, 9, 20, 0.96);
+    --spire-card: #0a1224;
+    --spire-card-alt: #081020;
+    --spire-card-hover: #111d38;
+    --spire-inset: #03060e;
+    --spire-border: #1e315c;
+    --spire-border-gold: #000000;
+    --spire-border-strong: #1e315c;
+    --spire-accent: #b91c1c;
+    --spire-accent-hover: #dc2626;
+    --spire-secondary: #38bdf8;
+    --spire-secondary-bright: #7dd3fc;
+    --spire-secondary-text: #bae6fd;
+    --spire-text: #e2e8f0;
+    --spire-text-soft: #cbd5e1;
+    --spire-text-muted: #94a3b8;
+    --spire-danger-text: #fda4af;
+    --spire-info-text: #7dd3fc;
+    --spire-shadow-card: 5px 5px 0px #000000;
+    --spire-shadow-hover: 7px 7px 0px #000000;
   }
 
   body {
@@ -23,6 +71,7 @@
     color: var(--spire-text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     overflow-x: clip;
+    transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1), color 200ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   /* GPU-Accelerated Fixed Background Layer (Zero paint lag on scroll) */
@@ -32,7 +81,7 @@
     pointer-events: none;
     z-index: -1;
     background-color: var(--spire-bg);
-    background-image: 
+    background-image:
       radial-gradient(circle at 50% 15%, rgba(120, 0, 22, 0.12) 0%, transparent 60%),
       radial-gradient(circle at 50% 85%, rgba(197, 155, 39, 0.06) 0%, transparent 60%),
       url('/assets/images/goddess-fresco.svg');
@@ -41,6 +90,18 @@
     background-size: 1400px auto;
     transform: translateZ(0);
     will-change: transform;
+  }
+
+  /* Going Dark Background: Corebook Midnight Indigo + Halftone Ink */
+  :root[data-theme="going-dark"] .spire-bg-layer {
+    background-color: #03050b;
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.09) 0%, transparent 42%),
+      radial-gradient(circle at 82% 78%, rgba(185, 28, 28, 0.09) 0%, transparent 45%),
+      radial-gradient(#132142 1.2px, transparent 1.2px);
+    background-position: 0 0, 0 0, 0 0;
+    background-repeat: no-repeat, no-repeat, repeat;
+    background-size: auto, auto, 18px 18px;
   }
 
   h1, h2, h3, .font-heading {
@@ -56,15 +117,171 @@
   }
 }
 
-/* Dieselpunk & Cathedral Mosaic Utilities */
-.spire-panel {
-  background: linear-gradient(180deg, rgba(16, 19, 28, 0.92) 0%, rgba(9, 11, 17, 0.95) 100%);
-  border: 1px solid #282f42;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(197, 155, 39, 0.15);
+/* Signature Vertical Lumen Tube from Spire Corebook cover */
+.spire-corebook-lumen {
+  display: none;
 }
 
-.spire-panel:hover {
-  border-color: #5e4713;
+:root[data-theme="going-dark"] .spire-corebook-lumen {
+  display: block;
+  position: fixed;
+  top: 136px;
+  right: 18px;
+  width: 5px;
+  height: 150px;
+  background: #e0f2fe;
+  box-shadow: 0 0 22px 5px rgba(56, 189, 248, 0.4), 0 0 54px 12px rgba(14, 165, 233, 0.16);
+  border-radius: 3px;
+  opacity: 0.42;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (max-width: 1279px) {
+  :root[data-theme="going-dark"] .spire-corebook-lumen {
+    display: none;
+  }
+}
+
+/* Theme-Aware Surface Utilities */
+@layer components {
+  .spire-banner {
+    background: linear-gradient(to right, #210911, #141620, #0d0e14);
+    border: 1px solid #4a2e12;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  }
+
+  :root[data-theme="going-dark"] .spire-banner {
+    background: linear-gradient(135deg, #070d1b 0%, #0b1428 55%, #040711 100%);
+    border: 2.5px solid #000000;
+    border-radius: 0px;
+    box-shadow: 6px 6px 0px #000000;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  }
+
+  .spire-card-shell {
+    background: linear-gradient(to bottom, #11131c, #0d0f17, #08090d);
+    border: 1px solid #2b2f40;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.65);
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 220ms ease;
+  }
+
+  .spire-card-shell:hover {
+    border-color: #c59b27;
+    box-shadow: 0 0 35px rgba(120, 0, 22, 0.45);
+  }
+
+  :root[data-theme="going-dark"] .spire-card-shell {
+    background: #0a1224;
+    border: 2.5px solid #000000;
+    border-radius: 0px;
+    box-shadow: 6px 6px 0px #000000;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  }
+
+  :root[data-theme="going-dark"] .spire-card-shell:hover {
+    border-color: #38bdf8;
+    box-shadow: 8px 8px 0px #000000;
+  }
+
+  .spire-surface-box {
+    background-color: var(--spire-card);
+    border: 1px solid var(--spire-border);
+    border-radius: 0.75rem;
+  }
+
+  :root[data-theme="going-dark"] .spire-surface-box {
+    background-color: var(--spire-card);
+    border: 2px solid #000000;
+    border-radius: 2px;
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  :root[data-theme="going-dark"] .spire-ink-hatch {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.45),
+      rgba(0, 0, 0, 0.45) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  }
+
+  .spire-archive-stamp {
+    display: none;
+  }
+
+  :root[data-theme="going-dark"] .spire-archive-stamp {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fecdd3;
+    background: rgba(185, 28, 28, 0.2);
+    border: 1.5px solid #b91c1c;
+    transform: rotate(-1.5deg);
+  }
+
+  /* Modal & Dialog Panel Theme Support */
+  .spire-modal-shell {
+    background-color: #11131a;
+    border-color: #5e4713;
+    color: #e2dcd2;
+  }
+
+  :root[data-theme="going-dark"] .spire-modal-shell {
+    background-color: #070d1c;
+    border-color: #000000;
+    color: #e2e8f0;
+    box-shadow: 0 0 0 2px #1e315c, 10px 10px 0px #000000;
+  }
+
+  @media (min-width: 640px) {
+    :root[data-theme="going-dark"] .spire-modal-shell {
+      border-radius: 2px;
+    }
+  }
+
+  .spire-modal-header {
+    background: linear-gradient(to right, #290710, #1a121e, #11131a);
+    border-bottom-color: #3d2b0e;
+  }
+
+  :root[data-theme="going-dark"] .spire-modal-header {
+    background: linear-gradient(135deg, #040711 0%, #0d1730 65%, #070d1c 100%);
+    border-bottom: 2px solid #000000;
+  }
+
+  /* Indigo Blueprint Map Filter */
+  :root[data-theme="going-dark"] .spire-map-artwork {
+    filter: invert(0.92) hue-rotate(192deg) saturate(1.45) contrast(1.16) brightness(0.92);
+  }
+
+  /* Dieselpunk & Cathedral Mosaic Utilities */
+  .spire-panel {
+    background: linear-gradient(180deg, rgba(16, 19, 28, 0.92) 0%, rgba(9, 11, 17, 0.95) 100%);
+    border: 1px solid #282f42;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(197, 155, 39, 0.15);
+  }
+
+  .spire-panel:hover {
+    border-color: #5e4713;
+  }
+
+  :root[data-theme="going-dark"] .spire-panel {
+    background: #0a1224;
+    border: 2px solid #000000;
+    box-shadow: 5px 5px 0px #000000;
+  }
+
+  :root[data-theme="going-dark"] .spire-panel:hover {
+    border-color: #38bdf8;
+  }
 }
 
 .fresco-border {
@@ -85,13 +302,20 @@
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #050608;
+  background: var(--spire-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1c2130;
+  background: var(--spire-card-hover);
   border-radius: 4px;
-  border: 1px solid #4a3812;
+  border: 1px solid var(--spire-border);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #780016;
+  background: var(--spire-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
