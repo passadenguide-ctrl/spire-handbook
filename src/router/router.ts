@@ -1,10 +1,8 @@
-export type MainTab = 'classes' | 'extra' | 'districts' | 'equipment' | 'rules';
-export type AtlasMode = 'lore' | 'map';
+export type MainTab = 'classes' | 'extra' | 'lore' | 'map' | 'equipment' | 'rules';
 export type LoreCategory = 'intro' | 'races' | 'domains' | 'gods';
 
 export interface AppRoute {
   tab: MainTab;
-  atlasMode: AtlasMode;
   loreTab: LoreCategory;
   raceId?: string;          // e.g. 'drow' | 'aelfir' | 'human' | 'gnoll'
   godSubsectionId?: string; // e.g. 'damnu' | 'solar-pantheon' | 'forbidden-cults'
@@ -18,7 +16,6 @@ export interface AppRoute {
 
 export const DEFAULT_ROUTE: AppRoute = {
   tab: 'classes',
-  atlasMode: 'lore',
   loreTab: 'intro',
   raceId: 'drow',
   godSubsectionId: 'damnu',
@@ -76,20 +73,18 @@ export function parseRoute(hashString: string): AppRoute {
   if (first === 'map') {
     return {
       ...DEFAULT_ROUTE,
-      tab: 'districts',
-      atlasMode: 'map',
+      tab: 'map',
       districtId: segments[1] || undefined,
     };
   }
 
-  // 4. Districts: #/districts or #/districts/map or #/districts/lore/...
+  // 4. Legacy Districts routes: #/districts or #/districts/map or #/districts/lore/...
   if (first === 'districts') {
     const second = segments[1]?.toLowerCase();
     if (second === 'map') {
       return {
         ...DEFAULT_ROUTE,
-        tab: 'districts',
-        atlasMode: 'map',
+        tab: 'map',
         districtId: segments[2] || undefined,
       };
     }
@@ -131,8 +126,7 @@ function parseLoreSegments(segments: string[]): AppRoute {
 
   const route: AppRoute = {
     ...DEFAULT_ROUTE,
-    tab: 'districts',
-    atlasMode: 'lore',
+    tab: 'lore',
     loreTab,
   };
 
@@ -170,11 +164,11 @@ export function buildRoutePath(route: Partial<AppRoute>): string {
     return route.advanceId ? `#/extra/${route.advanceId}` : `#/extra`;
   }
 
-  if (tab === 'districts') {
-    if (route.atlasMode === 'map') {
-      return route.districtId ? `#/map/${route.districtId}` : `#/map`;
-    }
+  if (tab === 'map') {
+    return route.districtId ? `#/map/${route.districtId}` : `#/map`;
+  }
 
+  if (tab === 'lore') {
     const loreTab = route.loreTab || 'intro';
 
     if (loreTab === 'races') {

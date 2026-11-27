@@ -28,7 +28,7 @@ export const LoreTableOfContents: React.FC<LoreTableOfContentsProps> = ({
         return parsed;
       }
     }
-    return 180;
+    return 124;
   };
 
   useEffect(() => {

@@ -19,8 +19,8 @@ interface LoreCompendiumProps {
   initialTab?: LoreTab;
 }
 
-// Top fixed stack height: Navbar (64px) + Atlas mode sub-bar (56px) = 120px
-const UPPER_CHROME_HEIGHT = 120;
+// Top fixed stack height: Navbar (64px)
+const UPPER_CHROME_HEIGHT = 64;
 
 export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
   onNavigateToMap,
@@ -88,8 +88,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
 
   const handleTabChange = (tabId: LoreTab) => {
     navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
+      tab: 'lore',
       loreTab: tabId,
     });
     scrollToTopIfNeeded();
@@ -97,8 +96,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
 
   const handleSelectRace = (raceId: string) => {
     navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
+      tab: 'lore',
       loreTab: 'races',
       raceId,
     });
@@ -109,8 +107,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
     const targetSub = godSubsections.find(s => s.id === subId);
     const firstFaceId = targetSub?.faces && targetSub.faces.length > 0 ? targetSub.faces[0].id : undefined;
     navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
+      tab: 'lore',
       loreTab: 'gods',
       godSubsectionId: subId,
       godFaceId: subId === 'damnu' ? (firstFaceId || 'limye') : undefined,
@@ -120,8 +117,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
 
   const handleSelectGodFace = (faceId: string) => {
     navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
+      tab: 'lore',
       loreTab: 'gods',
       godSubsectionId: 'damnu',
       godFaceId: faceId,
@@ -161,7 +157,7 @@ export const LoreCompendium: React.FC<LoreCompendiumProps> = ({
       {/* Unified Sticky Top Navigation Stack for Lore & Sub-Categories */}
       <div
         ref={stickyNavRef}
-        className={`sticky top-[120px] z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-2.5 pb-3 space-y-2.5 transition-all duration-200 ${
+        className={`sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-2.5 pb-3 space-y-2.5 transition-all duration-200 ${
           isScrolled
             ? isGoingDark
               ? 'bg-[#03050b]/95 backdrop-blur-md border-b-2 border-black shadow-[0_8px_0px_rgba(0,0,0,0.85)]'

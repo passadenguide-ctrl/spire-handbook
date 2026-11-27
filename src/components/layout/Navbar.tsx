@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, Crosshair, Dices, Menu, X, Award, Compass, MoonStar } from 'lucide-react';
+import { Shield, Crosshair, Dices, Menu, X, Award, BookOpen, MapPin, MoonStar } from 'lucide-react';
 import { useTheme } from '../../theme/ThemeContext';
 
-export type NavTab = 'classes' | 'extra' | 'districts' | 'equipment' | 'rules';
+export type NavTab = 'classes' | 'extra' | 'lore' | 'map' | 'equipment' | 'rules';
 
 interface NavbarProps {
   currentTab: NavTab;
@@ -16,7 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
   const navItems: Array<{ id: NavTab; label: string; icon: React.ReactNode }> = [
     { id: 'classes', label: 'Классы', icon: <Shield size={16} /> },
     { id: 'extra', label: 'Доп. Продвижения', icon: <Award size={16} /> },
-    { id: 'districts', label: 'Атлас и Хроники', icon: <Compass size={16} /> },
+    { id: 'lore', label: 'Хроники', icon: <BookOpen size={16} /> },
+    { id: 'map', label: 'Карта', icon: <MapPin size={16} /> },
     { id: 'equipment', label: 'Снаряжение и Теги', icon: <Crosshair size={16} /> },
     { id: 'rules', label: 'Механики и Последствия', icon: <Dices size={16} /> },
   ];
@@ -76,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
 
           {/* Desktop Navigation Links */}
           <nav
-            className={`hidden md:flex items-center gap-1 p-1 ${
+            className={`hidden xl:flex items-center gap-1 p-1 ${
               isGoingDark
                 ? 'bg-[#03060e] rounded-xs border-2 border-black shadow-[3px_3px_0_#000000]'
                 : 'bg-[#0d0f17] rounded-xl border border-[#262c3e]'
@@ -86,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3.5 py-1.5 text-xs font-heading font-semibold whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 text-xs font-heading font-semibold whitespace-nowrap transition-colors ${
                   isGoingDark ? 'rounded-xs' : 'rounded-lg'
                 } ${
                   currentTab === item.id
@@ -128,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
               <span>Going Dark</span>
             </button>
 
-            <div className="md:hidden">
+            <div className="xl:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className={`p-2 rounded-lg transition-colors ${
@@ -145,10 +146,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile / Tablet Menu Dropdown (< xl) */}
       {mobileMenuOpen && (
         <div
-          className={`md:hidden p-4 space-y-2 ${
+          className={`xl:hidden p-4 space-y-2 ${
             isGoingDark
               ? 'border-b-2 border-t-2 border-black bg-[#060b18] shadow-[0_6px_0_#000000]'
               : 'border-t border-[#262c3e] bg-[#090b12]'

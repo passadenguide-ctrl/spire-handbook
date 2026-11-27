@@ -306,7 +306,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   // Auto-center and zoom into a selected district stratum using live responsive canvas dimensions
   const handleSelectStratum = (stratum: StratumConfig) => {
     setSelectedDistrictId(stratum.id);
-    navigate({ tab: 'districts', atlasMode: 'map', districtId: stratum.id }, { replace: true });
+    navigate({ tab: 'map', districtId: stratum.id }, { replace: true });
     setExpandedLandmark(null);
     if (stratum.id === 'perch') {
       setActivePerchSector('all');

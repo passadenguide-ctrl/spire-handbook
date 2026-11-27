@@ -55,11 +55,6 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (!newRoute.rulesResistance) delete merged.rulesResistance;
       }
 
-      // When switching atlasMode between lore and map, clear districtId unless specified
-      if (newRoute.atlasMode && newRoute.atlasMode !== prev.atlasMode) {
-        if (!newRoute.districtId) delete merged.districtId;
-      }
-
       const targetPath = buildRoutePath(merged);
 
       if (options?.replace) {

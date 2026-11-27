@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Navbar, NavTab } from './components/layout/Navbar';
 import { ClassesList } from './components/classes/ClassesList';
-import { Flame, ArrowUp, Loader2, BookOpen, MapPin } from 'lucide-react';
+import { Flame, ArrowUp, Loader2 } from 'lucide-react';
 import { RouterProvider, useRouter } from './router/RouterContext';
 import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
@@ -52,23 +52,21 @@ const AppContent: React.FC = () => {
 
   const handleNavigateToMap = (districtId?: string) => {
     navigate({
-      tab: 'districts',
-      atlasMode: 'map',
+      tab: 'map',
       districtId: districtId || undefined,
     });
   };
 
   const handleNavigateToLore = (districtId?: string) => {
     navigate({
-      tab: 'districts',
-      atlasMode: 'lore',
+      tab: 'lore',
       loreTab: 'domains',
       districtId: districtId || undefined,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isMapActive = route.tab === 'districts' && route.atlasMode === 'map';
+  const isMapActive = route.tab === 'map';
 
   return (
     <div
@@ -86,91 +84,12 @@ const AppContent: React.FC = () => {
         onTabChange={(tab) => navigate({ tab })}
       />
 
-      {/* Atlas & Lore Sub-Navigation Bar (Shown only when Atlas & Chronicles tab is active) */}
-      {route.tab === 'districts' && (
-        <div
-          className={`w-full h-14 box-border sticky top-16 z-30 backdrop-blur-md transition-colors ${
-            isGoingDark
-              ? 'bg-[#050914]/97 border-b-2 border-black shadow-[0_4px_0_#000000]'
-              : 'bg-[#070a10]/95 border-b border-[#302310] shadow-md'
-          }`}
-        >
-          <div className="max-w-7xl mx-auto h-full px-2 sm:px-6 lg:px-8 flex items-center justify-center">
-            <div
-              className={`inline-flex max-w-full items-center gap-1 p-1 ${
-                isGoingDark
-                  ? 'bg-[#03060e] border-2 border-black rounded-xs shadow-[3px_3px_0_#000000]'
-                  : 'bg-[#0e121c] border border-[#2e374d] rounded-xl'
-              }`}
-            >
-              <button
-                onClick={() => navigate({ tab: 'districts', atlasMode: 'lore' })}
-                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-1.5 text-[10px] sm:text-sm font-heading font-bold uppercase tracking-normal sm:tracking-wider whitespace-nowrap transition-colors ${
-                  isGoingDark ? 'rounded-xs' : 'rounded-lg'
-                } ${
-                  route.atlasMode === 'lore'
-                    ? isGoingDark
-                      ? 'bg-[#b91c1c] text-white border border-black shadow-[2px_2px_0_#000000]'
-                      : 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
-                    : isGoingDark
-                    ? 'text-[#94a3b8] hover:text-[#e2e8f0] hover:bg-[#111d38] border border-transparent'
-                    : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
-                }`}
-              >
-                <BookOpen
-                  size={14}
-                  className={`shrink-0 ${
-                    route.atlasMode === 'lore'
-                      ? isGoingDark
-                        ? 'text-[#7dd3fc]'
-                        : 'text-[#f0ca5b]'
-                      : isGoingDark
-                      ? 'text-[#64748b]'
-                      : 'text-[#6e685c]'
-                  }`}
-                />
-                <span>Хроники и Лор Шпиля</span>
-              </button>
-
-              <button
-                onClick={() => navigate({ tab: 'districts', atlasMode: 'map' })}
-                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-1.5 text-[10px] sm:text-sm font-heading font-bold uppercase tracking-normal sm:tracking-wider whitespace-nowrap transition-colors ${
-                  isGoingDark ? 'rounded-xs' : 'rounded-lg'
-                } ${
-                  route.atlasMode === 'map'
-                    ? isGoingDark
-                      ? 'bg-[#b91c1c] text-white border border-black shadow-[2px_2px_0_#000000]'
-                      : 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
-                    : isGoingDark
-                    ? 'text-[#94a3b8] hover:text-[#e2e8f0] hover:bg-[#111d38] border border-transparent'
-                    : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
-                }`}
-              >
-                <MapPin
-                  size={14}
-                  className={`shrink-0 ${
-                    route.atlasMode === 'map'
-                      ? isGoingDark
-                        ? 'text-[#7dd3fc]'
-                        : 'text-[#f0ca5b]'
-                      : isGoingDark
-                      ? 'text-[#64748b]'
-                      : 'text-[#6e685c]'
-                  }`}
-                />
-                <span>Интерактивная Карта</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content Area */}
       <main
         className={`flex-1 w-full mx-auto ${
           isMapActive
-            ? 'max-w-[1800px] p-2 sm:p-3 flex flex-col xl:h-[calc(100dvh-7.5rem)] xl:overflow-hidden'
-            : route.tab === 'districts'
+            ? 'max-w-[1800px] p-2 sm:p-3 flex flex-col xl:h-[calc(100dvh-4rem)] xl:overflow-hidden'
+            : route.tab === 'lore'
             ? 'max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 pb-8'
             : 'max-w-7xl px-4 sm:px-6 lg:px-8 py-8'
         }`}
@@ -178,14 +97,14 @@ const AppContent: React.FC = () => {
         <Suspense fallback={<TabLoadingFallback />}>
           {route.tab === 'classes' && <ClassesList />}
           {route.tab === 'extra' && <ExtraAdvancesList />}
-          {route.tab === 'districts' && route.atlasMode === 'lore' && (
+          {route.tab === 'lore' && (
             <LoreCompendium
               onNavigateToMap={handleNavigateToMap}
               initialDistrictId={route.districtId}
               initialTab={route.loreTab}
             />
           )}
-          {route.tab === 'districts' && route.atlasMode === 'map' && (
+          {route.tab === 'map' && (
             <DistrictMap
               isCompactScreen={true}
               initialDistrictId={route.districtId}
