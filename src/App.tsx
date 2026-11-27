@@ -57,7 +57,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={`min-h-screen flex flex-col bg-transparent text-[#e0dacf] selection:bg-[#780016] selection:text-white relative ${
-      isMapActive ? 'h-screen overflow-hidden' : ''
+      isMapActive ? 'xl:h-[100dvh] xl:overflow-hidden' : ''
     }`}>
       {/* GPU-Accelerated Fixed Background (Separated to eliminate scroll repaint lag) */}
       <div className="spire-bg-layer" />
@@ -71,29 +71,29 @@ const AppContent: React.FC = () => {
       {/* Atlas & Lore Sub-Navigation Bar (Shown only when Atlas & Chronicles tab is active) */}
       {route.tab === 'districts' && (
         <div className="w-full h-14 box-border bg-[#070a10]/95 border-b border-[#302310] shadow-md sticky top-16 z-30 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-            <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#0e121c] border border-[#2e374d]">
+          <div className="max-w-7xl mx-auto h-full px-2 sm:px-6 lg:px-8 flex items-center justify-center">
+            <div className="inline-flex max-w-full items-center gap-1 p-1 rounded-xl bg-[#0e121c] border border-[#2e374d]">
               <button
                 onClick={() => navigate({ tab: 'districts', atlasMode: 'lore' })}
-                className={`flex items-center gap-2 px-3.5 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-1.5 rounded-lg text-[10px] sm:text-sm font-heading font-bold uppercase tracking-normal sm:tracking-wider whitespace-nowrap transition-colors ${
                   route.atlasMode === 'lore'
                     ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
                     : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
                 }`}
               >
-                <BookOpen size={15} className={route.atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+                <BookOpen size={14} className={`shrink-0 ${route.atlasMode === 'lore' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'}`} />
                 <span>Хроники и Лор Шпиля</span>
               </button>
 
               <button
                 onClick={() => navigate({ tab: 'districts', atlasMode: 'map' })}
-                className={`flex items-center gap-2 px-3.5 sm:px-6 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-1.5 rounded-lg text-[10px] sm:text-sm font-heading font-bold uppercase tracking-normal sm:tracking-wider whitespace-nowrap transition-colors ${
                   route.atlasMode === 'map'
                     ? 'bg-[#780016] text-white shadow-md border border-[#c59b27]/40'
                     : 'text-[#9c9587] hover:text-[#e0dacf] hover:bg-[#151926] border border-transparent'
                 }`}
               >
-                <MapPin size={15} className={route.atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'} />
+                <MapPin size={14} className={`shrink-0 ${route.atlasMode === 'map' ? 'text-[#f0ca5b]' : 'text-[#6e685c]'}`} />
                 <span>Интерактивная Карта</span>
               </button>
             </div>
@@ -104,7 +104,7 @@ const AppContent: React.FC = () => {
       {/* Main Content Area */}
       <main className={`flex-1 w-full mx-auto ${
         isMapActive 
-          ? 'h-[calc(100vh-7.5rem)] max-w-[1800px] p-2 sm:p-3 overflow-hidden flex flex-col' 
+          ? 'max-w-[1800px] p-2 sm:p-3 flex flex-col xl:h-[calc(100dvh-7.5rem)] xl:overflow-hidden' 
           : route.tab === 'districts'
           ? 'max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 pb-8'
           : 'max-w-7xl px-4 sm:px-6 lg:px-8 py-8'

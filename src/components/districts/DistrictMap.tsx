@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Compass, MapPin, ChevronDown, ChevronUp,
   Building, Users, BookOpen, Scroll, Flame, Sparkles,
-  ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, Map, List,
+  ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, Map as MapIcon, List,
   Plus, Edit3, Trash2, Download, Upload, X, ArrowRight,
   Layers, Crosshair, Globe, Sprout
 } from 'lucide-react';
@@ -76,8 +76,23 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   const [zoom, setZoom] = useState<number>(1);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  const zoomRef = useRef<number>(1);
+  const panRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const activePointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const singleDragRef = useRef<{ startX: number; startY: number; panStartX: number; panStartY: number; moved: boolean } | null>(null);
+  const pinchStateRef = useRef<{ dist: number; startZoom: number; midX: number; midY: number; startPanX: number; startPanY: number } | null>(null);
+  const suppressClickRef = useRef<boolean>(false);
+
+  // Keep refs synchronized with state
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
 
   // Custom User Pins
   const [pins, setPins] = useState<CustomPin[]>(() => {
@@ -100,6 +115,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   const [showImportDialog, setShowImportDialog] = useState<boolean>(false);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapWrapperRef = useRef<HTMLDivElement>(null);
   const mapImageRef = useRef<HTMLImageElement>(null);
 
   const activeDistrict = districts.find(d => d.id === selectedDistrictId) || districts[0];
@@ -126,42 +142,166 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       e.stopPropagation();
 
       const zoomFactor = e.deltaY < 0 ? 0.18 : -0.18;
-      setZoom(prev => Math.min(Math.max(prev + zoomFactor, 0.85), 4.5));
+      setZoom(prev => {
+        const next = Math.min(Math.max(prev + zoomFactor, 0.7), 4.5);
+        zoomRef.current = next;
+        return next;
+      });
     };
 
     container.addEventListener('wheel', handleNativeWheel, { passive: false });
     return () => {
       container.removeEventListener('wheel', handleNativeWheel);
     };
-  }, []);
+  }, [viewMode]);
+
+  // Helper to update zoom and ref synchronously
+  const applyZoomPan = (nextZoom: number, nextPan: { x: number; y: number }) => {
+    zoomRef.current = nextZoom;
+    panRef.current = nextPan;
+    setZoom(nextZoom);
+    setPan(nextPan);
+  };
 
   // Zoom controls
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.35, 4.5));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.35, 0.85));
+  const handleZoomIn = () => {
+    const next = Math.min(zoomRef.current + 0.35, 4.5);
+    zoomRef.current = next;
+    setZoom(next);
+  };
+  const handleZoomOut = () => {
+    const next = Math.max(zoomRef.current - 0.35, 0.7);
+    zoomRef.current = next;
+    setZoom(next);
+  };
   const handleResetZoom = () => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
+    applyZoomPan(1, { x: 0, y: 0 });
   };
 
-  // Drag & Pan handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isPinModeActive) return; // In pin placing mode, do not pan on click
-    if (e.button !== 0) return;
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  // Unified Pointer Events for Mouse Drag, Touch Pan (1 finger) & Pinch-to-Zoom (2 fingers)
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore synthetic events where capture is unavailable
+    }
+
+    activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointersRef.current.size === 1) {
+      singleDragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        panStartX: panRef.current.x,
+        panStartY: panRef.current.y,
+        moved: false,
+      };
+      if (!isPinModeActive) {
+        setIsDragging(true);
+      }
+    } else if (activePointersRef.current.size === 2) {
+      singleDragRef.current = null;
+      setIsDragging(true);
+      const pts = Array.from(activePointersRef.current.values());
+      const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      const midX = (pts[0].x + pts[1].x) / 2;
+      const midY = (pts[0].y + pts[1].y) / 2;
+      pinchStateRef.current = {
+        dist: Math.max(dist, 1),
+        startZoom: zoomRef.current,
+        midX,
+        midY,
+        startPanX: panRef.current.x,
+        startPanY: panRef.current.y,
+      };
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPan({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    });
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!activePointersRef.current.has(e.pointerId)) return;
+    activePointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointersRef.current.size === 2 && pinchStateRef.current && mapContainerRef.current) {
+      const pts = Array.from(activePointersRef.current.values());
+      const newDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      const newMidX = (pts[0].x + pts[1].x) / 2;
+      const newMidY = (pts[0].y + pts[1].y) / 2;
+
+      const scaleRatio = newDist / pinchStateRef.current.dist;
+      const nextZoom = Math.min(Math.max(pinchStateRef.current.startZoom * scaleRatio, 0.7), 4.5);
+
+      const rect = mapContainerRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      const worldX = (pinchStateRef.current.midX - cx - pinchStateRef.current.startPanX) / pinchStateRef.current.startZoom;
+      const worldY = (pinchStateRef.current.midY - cy - pinchStateRef.current.startPanY) / pinchStateRef.current.startZoom;
+
+      const nextPan = {
+        x: (newMidX - cx) - worldX * nextZoom,
+        y: (newMidY - cy) - worldY * nextZoom,
+      };
+
+      suppressClickRef.current = true;
+      applyZoomPan(nextZoom, nextPan);
+      return;
+    }
+
+    if (activePointersRef.current.size === 1 && singleDragRef.current) {
+      const dx = e.clientX - singleDragRef.current.startX;
+      const dy = e.clientY - singleDragRef.current.startY;
+      if (Math.hypot(dx, dy) > 5) {
+        singleDragRef.current.moved = true;
+        suppressClickRef.current = true;
+      }
+      if (!isPinModeActive) {
+        const nextPan = {
+          x: singleDragRef.current.panStartX + dx,
+          y: singleDragRef.current.panStartY + dy,
+        };
+        panRef.current = nextPan;
+        setPan(nextPan);
+      }
+    }
   };
 
-  const handleMouseUp = () => setIsDragging(false);
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Ignore if pointer capture is already released
+    }
 
-  // Auto-center and zoom into a selected district stratum
+    activePointersRef.current.delete(e.pointerId);
+
+    if (activePointersRef.current.size < 2) {
+      pinchStateRef.current = null;
+    }
+
+    if (activePointersRef.current.size === 1 && !isPinModeActive) {
+      const remaining = Array.from(activePointersRef.current.values())[0];
+      singleDragRef.current = {
+        startX: remaining.x,
+        startY: remaining.y,
+        panStartX: panRef.current.x,
+        panStartY: panRef.current.y,
+        moved: true,
+      };
+      return;
+    }
+
+    if (activePointersRef.current.size === 0) {
+      singleDragRef.current = null;
+      setIsDragging(false);
+    }
+  };
+
+  // Auto-center and zoom into a selected district stratum using live responsive canvas dimensions
   const handleSelectStratum = (stratum: StratumConfig) => {
     setSelectedDistrictId(stratum.id);
     navigate({ tab: 'districts', atlasMode: 'map', districtId: stratum.id }, { replace: true });
@@ -170,15 +310,14 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
       setActivePerchSector('all');
     }
 
-    const targetZoom = stratum.zoom;
-    const baseW = 850;
-    const baseH = 1100;
+    const baseW = mapWrapperRef.current?.offsetWidth || 850;
+    const baseH = mapWrapperRef.current?.offsetHeight || 1100;
+    const targetZoom = baseW < 500 ? Math.max(stratum.zoom, 2.2) : stratum.zoom;
 
     const dx = (50 - stratum.centerX) / 100 * baseW * targetZoom;
     const dy = (50 - stratum.centerY) / 100 * baseH * targetZoom;
 
-    setZoom(targetZoom);
-    setPan({ x: dx, y: dy });
+    applyZoomPan(targetZoom, { x: dx, y: dy });
   };
 
   useEffect(() => {
@@ -193,11 +332,11 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   // Focus on specific Perch sector (Middle, Upper, Lower)
   const handleSelectPerchSector = (sector: 'all' | 'middle' | 'upper' | 'lower') => {
     setActivePerchSector(sector);
-    const baseW = 850;
-    const baseH = 1100;
+    const baseW = mapWrapperRef.current?.offsetWidth || 850;
+    const baseH = mapWrapperRef.current?.offsetHeight || 1100;
     let targetX = 59.5;
     let targetY = 51.5;
-    let targetZoom = 1.65;
+    let targetZoom = baseW < 500 ? 1.85 : 1.65;
 
     if (sector === 'middle') {
       targetX = 40.0;
@@ -215,21 +354,15 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
     const dx = (50 - targetX) / 100 * baseW * targetZoom;
     const dy = (50 - targetY) / 100 * baseH * targetZoom;
-    setZoom(targetZoom);
-    setPan({ x: dx, y: dy });
+    applyZoomPan(targetZoom, { x: dx, y: dy });
   };
-
-  useEffect(() => {
-    if (initialDistrictId) {
-      const cfg = SPIRE_STRATA.find(s => s.id === initialDistrictId);
-      if (cfg) {
-        handleSelectStratum(cfg);
-      }
-    }
-  }, [initialDistrictId]);
 
   // Handle click on map canvas for placing new pins
   const handleMapCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
     if (!isPinModeActive) return;
 
     if (!mapImageRef.current) return;
@@ -326,62 +459,64 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
   };
 
   return (
-    <div className={`space-y-3 text-[#e0dacf] flex flex-col ${isCompactScreen ? 'h-full overflow-hidden' : ''}`}>
+    <div className={`space-y-3 text-[#e0dacf] flex flex-col ${isCompactScreen ? 'xl:h-full xl:overflow-hidden' : ''}`}>
       
       {/* Compact Top Header Bar */}
-      <div className="bg-gradient-to-r from-[#1c1209] via-[#10131d] to-[#090b10] border border-[#523e14] rounded-xl px-4 py-2.5 shadow-xl flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#780016] to-[#36000a] border border-[#c59b27] flex items-center justify-center text-[#e5b83b] shadow-md">
-            <Compass size={18} />
+      <div className="bg-gradient-to-r from-[#1c1209] via-[#10131d] to-[#090b10] border border-[#523e14] rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-xl flex flex-wrap items-center justify-between gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#780016] to-[#36000a] border border-[#c59b27] flex items-center justify-center text-[#e5b83b] shadow-md shrink-0">
+            <Compass size={17} />
           </div>
-          <div>
-            <h2 className="text-base sm:text-lg font-heading font-black text-[#e5b83b] leading-tight">
+          <div className="min-w-0">
+            <h2 className="text-sm sm:text-lg font-heading font-black text-[#e5b83b] leading-tight truncate">
               Интерактивная Карта Шпиля
             </h2>
-            <span className="text-[10px] text-[#959085] uppercase tracking-widest font-heading block">
+            <span className="hidden sm:block text-[10px] text-[#959085] uppercase tracking-widest font-heading">
               11 ярусов • Автофокус и зум • Пользовательские метки
             </span>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setIsPinModeActive(!isPinModeActive)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-heading font-bold transition-all border ${
-              isPinModeActive
-                ? 'bg-[#c59b27] text-black border-[#f0cb78] shadow-lg animate-pulse'
-                : 'bg-[#151824] hover:bg-[#780016] text-[#f0cb78] hover:text-white border-[#45371c]'
-            }`}
-            title="Поставить новую метку на карту"
-          >
-            <Plus size={14} />
-            <span>{isPinModeActive ? 'Кликните на карту...' : 'Поставить метку'}</span>
-          </button>
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={() => setIsPinModeActive(!isPinModeActive)}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-heading font-bold transition-colors border ${
+                isPinModeActive
+                  ? 'bg-[#c59b27] text-black border-[#f0cb78] shadow-lg animate-pulse'
+                  : 'bg-[#151824] hover:bg-[#780016] text-[#f0cb78] hover:text-white border-[#45371c]'
+              }`}
+              title="Поставить новую метку на карту"
+            >
+              <Plus size={14} />
+              <span>{isPinModeActive ? 'Кликните...' : 'Метка'}<span className="hidden sm:inline">{isPinModeActive ? ' на карту' : ''}</span></span>
+            </button>
 
-          <button
-            onClick={() => setShowPinManager(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#12141e] hover:bg-[#1a1e2d] text-[#a8a192] hover:text-white border border-[#2b3042] text-xs font-heading font-semibold transition-colors"
-          >
-            <MapPin size={13} className="text-[#c59b27]" />
-            <span>Метки ({pins.length})</span>
-          </button>
+            <button
+              onClick={() => setShowPinManager(true)}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#12141e] hover:bg-[#1a1e2d] text-[#a8a192] hover:text-white border border-[#2b3042] text-xs font-heading font-semibold transition-colors"
+            >
+              <MapPin size={13} className="text-[#c59b27]" />
+              <span>Метки ({pins.length})</span>
+            </button>
+          </div>
 
           <div className="flex bg-[#0b0c12] p-0.5 rounded-lg border border-[#2e3346]">
             <button
               onClick={() => setViewMode('map')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-colors ${
                 viewMode === 'map'
                   ? 'bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
                   : 'text-[#959085] hover:text-[#e0dacf]'
               }`}
             >
-              <Map size={13} />
+              <MapIcon size={13} />
               <span>Карта</span>
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-heading font-bold transition-colors ${
                 viewMode === 'list'
                   ? 'bg-[#780016] text-white border border-[#c59b27]/40 shadow-md'
                   : 'text-[#959085] hover:text-[#e0dacf]'
@@ -417,12 +552,49 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
         </div>
       )}
 
-      {/* VIEW: INTERACTIVE MAP (Fits 100% on Single Viewport Screen) */}
+      {/* VIEW: INTERACTIVE MAP */}
       {viewMode === 'map' && (
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch flex-1 min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 sm:gap-4 items-stretch xl:flex-1 xl:min-h-0 xl:overflow-hidden">
           
-          {/* 1. Left Vertical Stratum Needle (3 cols on xl) */}
-          <div className="xl:col-span-3 bg-[#090b10] border border-[#3e321e] rounded-xl p-2.5 shadow-xl flex flex-col min-h-0 h-full overflow-hidden">
+          {/* Mobile / Tablet Compact Horizontal 11-Strata Selector (< xl) */}
+          <div className="xl:hidden bg-[#090b10] border border-[#3e321e] rounded-xl p-2 shadow-xl space-y-1.5">
+            <div className="flex items-center justify-between px-1 text-[11px] font-heading font-bold text-[#f0cb78] uppercase tracking-wider">
+              <span className="flex items-center gap-1.5">
+                <Layers size={13} className="text-[#c59b27]" />
+                Ярусы Шпиля (11)
+              </span>
+              <span className="text-[10px] text-[#8a8274] font-mono tabular-nums">
+                {SPIRE_STRATA.find(s => s.id === activeDistrict.id)?.height}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              {SPIRE_STRATA.map((stratum, idx) => {
+                const isSelected = activeDistrict.id === stratum.id;
+                return (
+                  <button
+                    key={stratum.id}
+                    onClick={() => handleSelectStratum(stratum)}
+                    className={`shrink-0 px-2.5 py-1.5 rounded-lg border text-left transition-colors flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-[#780016] to-[#45020d] text-white border-[#f0cb78] shadow'
+                        : 'bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60'
+                    }`}
+                  >
+                    <span className={`text-[10px] font-mono tabular-nums ${isSelected ? 'text-[#f0cb78] font-bold' : 'text-[#6e685c]'}`}>
+                      {idx + 1}.
+                    </span>
+                    <span className={`font-heading text-xs font-bold whitespace-nowrap ${isSelected ? 'text-[#f0cb78]' : 'text-[#dcd5c9]'}`}>
+                      {stratum.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 1. Desktop Left Vertical Stratum Needle (3 cols on xl) */}
+          <div className="hidden xl:col-span-3 xl:flex xl:flex-col bg-[#090b10] border border-[#3e321e] rounded-xl p-2.5 shadow-xl min-h-0 h-full overflow-hidden">
             <div className="flex items-center justify-between px-2 py-1 text-xs font-heading font-bold text-[#f0cb78] uppercase tracking-wider border-b border-[#252838] pb-1.5 flex-shrink-0">
               <span className="flex items-center gap-1.5">
                 <Layers size={13} className="text-[#c59b27]" />
@@ -441,7 +613,7 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                   <button
                     key={stratum.id}
                     onClick={() => handleSelectStratum(stratum)}
-                    className={`w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between group ${
+                    className={`w-full text-left p-2 rounded-lg border transition-colors flex items-center justify-between group ${
                       isSelected
                         ? 'bg-gradient-to-r from-[#780016] to-[#36000a] text-white border-[#f0cb78] shadow-md ring-1 ring-[#c59b27]/50'
                         : 'bg-[#0f1118] text-[#c5bea8] border-[#222533] hover:border-[#c59b27]/60 hover:bg-[#151824]'
@@ -477,48 +649,59 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
             </div>
           </div>
 
-          {/* 2. Middle: Large Dedicated Map Canvas (5 cols on xl) */}
-          <div className="xl:col-span-5 h-full flex flex-col min-h-0 overflow-hidden">
-            <div className={`relative bg-[#07080c] border-2 border-[#4a3b19] rounded-xl overflow-hidden shadow-2xl flex-1 flex flex-col min-h-0 ${
-              isFullscreen ? 'fixed inset-4 z-50 flex flex-col' : ''
+          {/* 2. Middle: Large Dedicated Map Canvas (5 cols on xl; large ~64dvh stage on mobile) */}
+          <div className="xl:col-span-5 xl:h-full flex flex-col xl:min-h-0">
+            <div className={`relative bg-[#07080c] border-2 border-[#4a3b19] overflow-hidden shadow-2xl flex flex-col ${
+              isFullscreen
+                ? 'fixed inset-0 sm:inset-4 z-50 h-[100dvh] sm:h-auto rounded-none sm:rounded-xl'
+                : 'h-[64dvh] min-h-[430px] max-h-[620px] xl:h-auto xl:min-h-0 xl:max-h-none xl:flex-1 rounded-xl'
             }`}>
               {/* Floating Toolbar */}
               <div className="absolute top-2.5 left-2.5 z-30 flex items-center gap-1 bg-black/85 backdrop-blur-md p-1 rounded-lg border border-[#3e3422] shadow-xl">
                 <button
                   onClick={handleZoomIn}
-                  className="p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
+                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
                   title="Приблизить (+)"
                 >
-                  <ZoomIn size={14} />
+                  <ZoomIn size={15} />
                 </button>
                 <button
                   onClick={handleZoomOut}
-                  className="p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
+                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#f0cb78] hover:text-white transition-colors"
                   title="Отдалить (-)"
                 >
-                  <ZoomOut size={14} />
+                  <ZoomOut size={15} />
                 </button>
                 <button
                   onClick={handleResetZoom}
-                  className="p-1.5 rounded-md bg-[#141724] hover:bg-[#262c3e] text-[#b8b0a1] hover:text-white transition-colors"
+                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#262c3e] text-[#b8b0a1] hover:text-white transition-colors"
                   title="Сбросить масштаб"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={15} />
                 </button>
                 <button
                   onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#b8b0a1] hover:text-white transition-colors"
+                  className="p-2 sm:p-1.5 rounded-md bg-[#141724] hover:bg-[#780016] text-[#b8b0a1] hover:text-white transition-colors"
                   title={isFullscreen ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}
                 >
-                  {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                  {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
                 </button>
               </div>
 
               {/* District Active Floating Banner & Perch Sector Switcher */}
-              <div className="absolute top-2.5 right-2.5 z-30 flex items-center gap-2">
+              <div className="absolute top-2.5 right-2.5 z-30 flex flex-col sm:flex-row items-end sm:items-center gap-1.5 sm:gap-2 max-w-[calc(100%-170px)] sm:max-w-none pointer-events-none">
+                <div className="bg-black/85 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-lg border border-[#c59b27] shadow-xl sm:order-2 max-w-full">
+                  <span className="hidden sm:block text-[9px] uppercase tracking-wider font-heading text-[#959085]">
+                    Выбранный ярус:
+                  </span>
+                  <span className="font-heading font-black text-[11px] sm:text-xs text-[#f0cb78] block truncate">
+                    {activeDistrict.nameRu}
+                  </span>
+                </div>
+
                 {isPerchActive && (
-                  <div className="flex items-center gap-1 bg-black/90 backdrop-blur-md px-2 py-1 rounded-lg border border-[#38bdf8]/60 shadow-xl pointer-events-auto">
-                    <span className="text-[10px] text-[#38bdf8] font-heading font-bold mr-1 flex items-center gap-1">
+                  <div className="flex flex-wrap justify-end items-center gap-1 bg-black/90 backdrop-blur-md px-2 py-1 rounded-lg border border-[#38bdf8]/60 shadow-xl pointer-events-auto sm:order-1">
+                    <span className="hidden sm:flex text-[10px] text-[#38bdf8] font-heading font-bold mr-1 items-center gap-1">
                       <Globe size={11} /> Сектора:
                     </span>
                     <button
@@ -563,37 +746,29 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
                     </button>
                   </div>
                 )}
-
-                <div className="bg-black/85 backdrop-blur-md px-3 py-1 rounded-lg border border-[#c59b27] shadow-xl pointer-events-none">
-                  <span className="text-[9px] uppercase tracking-wider font-heading text-[#959085] block">
-                    Выбранный ярус:
-                  </span>
-                  <span className="font-heading font-black text-xs text-[#f0cb78]">
-                    {activeDistrict.nameRu}
-                  </span>
-                </div>
               </div>
 
-              {/* Map Canvas with Isolated Wheel Zoom */}
+              {/* Map Canvas with Unified Touch/Mouse Pan & Wheel/Pinch Zoom */}
               <div
                 ref={mapContainerRef}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
                 onClick={handleMapCanvasClick}
-                className={`w-full flex-1 overflow-hidden relative flex items-center justify-center select-none ${
+                className={`w-full flex-1 overflow-hidden relative flex items-center justify-center select-none touch-none ${
                   isPinModeActive ? 'cursor-crosshair' : 'cursor-grab active:cursor-grabbing'
                 }`}
               >
                 <div
+                  ref={mapWrapperRef}
                   style={{
                     transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
                     transformOrigin: 'center center',
                     willChange: isDragging ? 'transform' : 'auto',
-                    transition: isDragging ? 'none' : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)'
+                    transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)'
                   }}
-                  className="relative w-[750px] sm:w-[850px] aspect-[1700/2200] max-w-none flex-shrink-0"
+                  className="relative w-[420px] sm:w-[750px] md:w-[850px] aspect-[1700/2200] max-w-none flex-shrink-0"
                 >
                   {/* Clean Authentic Map Illustration */}
                   <img
@@ -795,17 +970,18 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               </div>
 
               {/* Bottom Tip Bar */}
-              <div className="bg-black/85 backdrop-blur-md px-3 py-1.5 border-t border-[#2b3040] flex items-center justify-between text-[11px] text-[#878072] flex-shrink-0">
-                <span>Колесико: зум • Перетаскивание: панорама</span>
-                <span className="text-[#c59b27] font-heading font-semibold">
-                  {pins.length === 0 ? 'Нажмите «Поставить метку», чтобы добавить объект' : `Метки на карте: ${pins.length}`}
+              <div className="bg-black/85 backdrop-blur-md px-3 py-1.5 border-t border-[#2b3040] flex items-center justify-between gap-2 text-[11px] text-[#878072] flex-shrink-0">
+                <span className="hidden sm:inline">Колесико: зум • Перетаскивание: панорама</span>
+                <span className="sm:hidden">1 палец: сдвиг • 2 пальца: зум</span>
+                <span className="text-[#c59b27] font-heading font-semibold truncate">
+                  {pins.length === 0 ? 'Нажмите «Метка», чтобы добавить' : `Метки: ${pins.length}`}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* 3. Right: District Lore Dossier (4 cols on xl) */}
-          <div className="xl:col-span-4 bg-[#0e1017] border border-[#453416] rounded-xl p-4 sm:p-5 shadow-2xl space-y-4 flex flex-col min-h-0 h-full overflow-hidden">
+          {/* 3. Right: District Lore Dossier (4 cols on xl; flows naturally below map on mobile) */}
+          <div className="xl:col-span-4 bg-[#0e1017] border border-[#453416] rounded-xl p-4 sm:p-5 shadow-2xl space-y-4 flex flex-col xl:min-h-0 xl:h-full xl:overflow-hidden">
             
             {/* Dossier Header */}
             <div className="flex-shrink-0">
@@ -855,8 +1031,8 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
               )}
             </div>
 
-            {/* Scrollable Dossier Content */}
-            <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+            {/* Scrollable Dossier Content (inside xl panel on desktop, inline flow on mobile) */}
+            <div className="xl:flex-1 xl:overflow-y-auto space-y-3.5 xl:pr-1">
               {/* District Crop Art */}
               <div className="w-full rounded-lg border border-[#5e4713] bg-[#07080c] overflow-hidden shadow-lg flex-shrink-0">
                 <div className="relative h-36 w-full bg-[#050608]">
@@ -1013,8 +1189,8 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
       {/* MODAL: ADD / EDIT CUSTOM PIN */}
       {editingPin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-[#e0dacf]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
+          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-lg w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 sm:p-6 shadow-2xl space-y-4 text-[#e0dacf]">
             <div className="flex items-center justify-between border-b border-[#2e3346] pb-3">
               <h3 className="font-heading font-bold text-lg text-[#f0cb78] flex items-center gap-2">
                 <MapPin size={18} className="text-[#c59b27]" />
@@ -1208,8 +1384,8 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
       {/* MODAL: PIN MANAGER / EXPORT / IMPORT */}
       {showPinManager && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0d0f17] border-2 border-[#3e3422] rounded-2xl max-w-xl w-full p-5 shadow-2xl space-y-3.5 text-[#e0dacf]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
+          <div className="bg-[#0d0f17] border-2 border-[#3e3422] rounded-2xl max-w-xl w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 shadow-2xl space-y-3.5 text-[#e0dacf]">
             <div className="flex items-center justify-between border-b border-[#252a3b] pb-2.5">
               <h3 className="font-heading font-bold text-base text-[#f0cb78] flex items-center gap-2">
                 <MapPin size={16} className="text-[#c59b27]" />
@@ -1290,8 +1466,8 @@ export const DistrictMap: React.FC<DistrictMapProps> = ({
 
       {/* MODAL: IMPORT JSON */}
       {showImportDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/92 animate-in fade-in duration-150">
-          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-md w-full p-5 space-y-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 animate-in fade-in duration-150">
+          <div className="bg-[#0e1017] border-2 border-[#c59b27] rounded-2xl max-w-md w-full max-h-[92dvh] overflow-y-auto overscroll-contain p-5 space-y-3">
             <h4 className="font-heading font-bold text-sm text-[#f0cb78]">Вставьте JSON меток:</h4>
             <textarea
               value={importJsonText}

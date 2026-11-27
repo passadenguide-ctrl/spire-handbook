@@ -15,6 +15,7 @@ export const ClassModal: React.FC<ClassModalProps> = ({ characterClass, onClose 
     0: 0,
     1: 0
   });
+  const bodyScrollRef = React.useRef<HTMLDivElement>(null);
 
   // Lock background body scroll while modal is open to eliminate background repaint lag
   useEffect(() => {
@@ -34,6 +35,13 @@ export const ClassModal: React.FC<ClassModalProps> = ({ characterClass, onClose 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const handleTabSelect = (tab: 'overview' | 'traits' | 'abilities') => {
+    setActiveTab(tab);
+    if (bodyScrollRef.current) {
+      bodyScrollRef.current.scrollTop = 0;
+    }
+  };
+
   const abilities = characterClass.abilities || [];
   const filteredAbilities = abilities.filter(ab => {
     return activeTier === 'all' || ab.tier === activeTier;
@@ -47,17 +55,85 @@ export const ClassModal: React.FC<ClassModalProps> = ({ characterClass, onClose 
     high: 'Высокого уровня'
   };
 
+  const tabItems: Array<{ id: 'overview' | 'traits' | 'abilities'; mobileLabel: string; desktopLabel: string }> = [
+    { id: 'overview', mobileLabel: '1. Обзор', desktopLabel: '1. Обзор и Лор класса' },
+    { id: 'traits', mobileLabel: '2. Черты и лут', desktopLabel: '2. Черты, Связи и Снаряжение' },
+    { id: 'abilities', mobileLabel: `3. Способности (${abilities.length})`, desktopLabel: `3. Древо Способностей (${abilities.length})` },
+  ];
+
+  const renderStatPills = (compact = false) => (
+    <div className={`flex flex-wrap gap-1.5 sm:gap-2 text-xs ${compact ? 'mt-3' : 'mt-4'}`}>
+      {characterClass.resistances?.map((res, i) => (
+        <span key={i} className="px-2.5 py-1 rounded-md bg-[#2d1217] text-[#f2aab8] border border-[#780016] font-medium flex items-center gap-1">
+          <Shield size={12} /> {res}
+        </span>
+      ))}
+      {characterClass.skills?.map((sk, i) => (
+        <span key={i} className="px-2.5 py-1 rounded-md bg-[#192233] text-[#9fc2f5] border border-[#2b3c5c] font-medium">
+          Навык: {sk}
+        </span>
+      ))}
+      {characterClass.domains?.map((dom, i) => (
+        <span key={i} className="px-2.5 py-1 rounded-md bg-[#261f12] text-[#f0cb78] border border-[#54431e] font-medium">
+          Сфера: {dom}
+        </span>
+      ))}
+    </div>
+  );
+
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden bg-black/92 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden bg-black/92 animate-in fade-in duration-150"
     >
       <div 
-        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-[#11131a] border border-[#5e4713] rounded-2xl shadow-2xl overflow-hidden text-[#e2dcd2]"
+        className="relative w-full h-[100dvh] sm:h-auto sm:max-w-5xl sm:max-h-[92dvh] flex flex-col bg-[#11131a] sm:border border-[#5e4713] rounded-none sm:rounded-2xl shadow-2xl overflow-hidden text-[#e2dcd2]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Header Banner */}
-        <div className="relative p-6 sm:p-8 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e]">
+        {/* Mobile Sticky Compact Header (keeps <105px height so ~80% of 6.7" screen scrolls cleanly) */}
+        <div className="sm:hidden flex-shrink-0 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e] px-3.5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2.5">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="min-w-0">
+              <h2 className="text-lg font-heading font-bold text-[#e5b83b] truncate leading-tight">
+                {characterClass.nameRu}
+              </h2>
+              <span className="text-[10px] font-heading tracking-widest text-[#959085] uppercase block truncate">
+                {characterClass.nameEn}
+              </span>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full bg-black/50 hover:bg-[#780016] text-[#e0dacf] transition-colors border border-[#3d2b0e] flex-shrink-0"
+              title="Закрыть"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            {tabItems.map(tab => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSelect(tab.id)}
+                  className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
+                    isSelected
+                      ? tab.id === 'abilities'
+                        ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
+                        : 'bg-[#c59b27] text-black shadow'
+                      : 'text-[#959085] bg-[#161822] hover:text-[#e0dacf]'
+                  }`}
+                >
+                  {tab.mobileLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Top Header Banner (hidden on mobile < sm) */}
+        <div className="hidden sm:block relative flex-shrink-0 p-6 sm:p-8 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e]">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-[#780016] text-[#e0dacf] transition-colors border border-[#3d2b0e]"
@@ -108,66 +184,71 @@ export const ClassModal: React.FC<ClassModalProps> = ({ characterClass, onClose 
               )}
 
               {/* Resistance and Domain Pills */}
-              <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                {characterClass.resistances?.map((res, i) => (
-                  <span key={i} className="px-2.5 py-1 rounded-md bg-[#2d1217] text-[#f2aab8] border border-[#780016] font-medium flex items-center gap-1">
-                    <Shield size={12} /> {res}
-                  </span>
-                ))}
-                {characterClass.skills?.map((sk, i) => (
-                  <span key={i} className="px-2.5 py-1 rounded-md bg-[#192233] text-[#9fc2f5] border border-[#2b3c5c] font-medium">
-                    Навык: {sk}
-                  </span>
-                ))}
-                {characterClass.domains?.map((dom, i) => (
-                  <span key={i} className="px-2.5 py-1 rounded-md bg-[#261f12] text-[#f0cb78] border border-[#54431e] font-medium">
-                    Сфера: {dom}
-                  </span>
-                ))}
-              </div>
+              {renderStatPills()}
             </div>
           </div>
 
-          {/* Navigation Bar inside modal */}
+          {/* Navigation Bar inside desktop modal */}
           <div className="mt-6 pt-4 border-t border-[#312517] flex gap-2">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
-                activeTab === 'overview'
-                  ? 'bg-[#c59b27] text-black shadow'
-                  : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
-              }`}
-            >
-              1. Обзор и Лор класса
-            </button>
-            <button
-              onClick={() => setActiveTab('traits')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
-                activeTab === 'traits'
-                  ? 'bg-[#c59b27] text-black shadow'
-                  : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
-              }`}
-            >
-              2. Черты, Связи и Снаряжение
-            </button>
-            <button
-              onClick={() => setActiveTab('abilities')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
-                activeTab === 'abilities'
-                  ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
-                  : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
-              }`}
-            >
-              3. Древо Способностей ({abilities.length})
-            </button>
+            {tabItems.map(tab => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSelect(tab.id)}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
+                    isSelected
+                      ? tab.id === 'abilities'
+                        ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
+                        : 'bg-[#c59b27] text-black shadow'
+                      : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
+                  }`}
+                >
+                  {tab.desktopLabel}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Modal Body with Hardware-Accelerated Smooth Scroll */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-6">
+        <div ref={bodyScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8 space-y-5 sm:space-y-6">
           {/* TAB 1: OVERVIEW & LORE (EXACT PDF BREAKDOWN) */}
           {activeTab === 'overview' && (
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
+              {/* Mobile-only Scrollable Class Dossier Header */}
+              <div className="sm:hidden pb-5 border-b border-[#252838] space-y-3">
+                <div className="flex items-start gap-3.5">
+                  {characterClass.image && (
+                    <div className="w-20 h-28 rounded-xl overflow-hidden border-2 border-[#c59b27] shadow-xl flex-shrink-0 bg-black">
+                      <img
+                        src={characterClass.image}
+                        alt={characterClass.nameRu}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    {characterClass.quote && (
+                      <p className="text-sm text-[#f5efe3] font-flavor italic border-l-2 border-[#780016] pl-2.5 leading-snug">
+                        {characterClass.quote}
+                      </p>
+                    )}
+                    {characterClass.whoIs && (
+                      <div className="text-xs font-heading font-semibold text-[#c59b27] flex items-start gap-1.5 leading-snug">
+                        <Sparkles size={13} className="text-[#e5b83b] flex-shrink-0 mt-0.5" />
+                        <span>{characterClass.whoIs}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {renderStatPills(true)}
+              </div>
               {/* In a nutshell */}
               {characterClass.inANutshell && (
                 <div className="bg-[#171a26] p-5 rounded-2xl border border-[#2b3347] space-y-2">
@@ -443,10 +524,10 @@ export const ClassModal: React.FC<ClassModalProps> = ({ characterClass, onClose 
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#0d0e14] border-t border-[#262a3a] flex justify-end">
+        <div className="flex-shrink-0 p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#0d0e14] border-t border-[#262a3a] flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 rounded-xl bg-[#252938] hover:bg-[#780016] text-[#e0dacf] text-xs font-heading font-semibold tracking-wider uppercase transition-colors"
+            className="px-5 sm:px-6 py-2 rounded-xl bg-[#252938] hover:bg-[#780016] text-[#e0dacf] text-xs font-heading font-semibold tracking-wider uppercase transition-colors"
           >
             Закрыть справочник класса
           </button>

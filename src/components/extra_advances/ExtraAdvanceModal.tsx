@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Heart, CheckCircle2, Sparkles, BookOpen, ChevronRight, Award } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Heart, CheckCircle2, BookOpen, ChevronRight } from 'lucide-react';
 import { ExtraAdvance, AbilityTier } from '../../types/game';
 import { TagBadge } from '../common/TagBadge';
 
@@ -11,6 +11,7 @@ interface ExtraAdvanceModalProps {
 export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, onClose }) => {
   const [activeTier, setActiveTier] = useState<AbilityTier | 'all'>('all');
   const [activeTab, setActiveTab] = useState<'overview' | 'abilities'>('overview');
+  const bodyScrollRef = useRef<HTMLDivElement>(null);
 
   // Lock background body scroll while modal is open
   useEffect(() => {
@@ -30,6 +31,13 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const handleTabSelect = (tab: 'overview' | 'abilities') => {
+    setActiveTab(tab);
+    if (bodyScrollRef.current) {
+      bodyScrollRef.current.scrollTop = 0;
+    }
+  };
+
   const abilities = advance.abilities || [];
   const lowCount = abilities.filter(a => a.tier === 'low').length;
   const mediumCount = abilities.filter(a => a.tier === 'medium').length;
@@ -47,23 +55,72 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
     ...(highCount > 0 ? [{ id: 'high' as const, label: 'Высокого уровня', count: highCount }] : []),
   ];
 
+  const tabItems: Array<{ id: 'overview' | 'abilities'; mobileLabel: string; desktopLabel: string }> = [
+    { id: 'overview', mobileLabel: '1. Обзор', desktopLabel: '1. Обзор и Требования' },
+    { id: 'abilities', mobileLabel: `2. Способности (${abilities.length})`, desktopLabel: `2. Древо Способностей (${abilities.length})` },
+  ];
+
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden bg-black/92 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden bg-black/92 animate-in fade-in duration-150"
     >
       <div
-        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-[#11131a] border border-[#5e4713] rounded-2xl shadow-2xl overflow-hidden text-[#e2dcd2]"
+        className="relative w-full h-[100dvh] sm:h-auto sm:max-w-5xl sm:max-h-[92dvh] flex flex-col bg-[#11131a] sm:border border-[#5e4713] rounded-none sm:rounded-2xl shadow-2xl overflow-hidden text-[#e2dcd2]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Ornate Spire Corner Accents */}
-        <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-[#5e4713] pointer-events-none z-20" />
-        <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-[#5e4713] pointer-events-none z-20" />
-        <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-[#5e4713] pointer-events-none z-20" />
-        <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-[#5e4713] pointer-events-none z-20" />
+        {/* Ornate Spire Corner Accents (desktop/tablet) */}
+        <div className="hidden sm:block absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-[#5e4713] pointer-events-none z-20" />
+        <div className="hidden sm:block absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-[#5e4713] pointer-events-none z-20" />
+        <div className="hidden sm:block absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-[#5e4713] pointer-events-none z-20" />
+        <div className="hidden sm:block absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-[#5e4713] pointer-events-none z-20" />
 
-        {/* Top Header Banner */}
-        <div className="relative p-6 sm:p-8 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e]">
+        {/* Mobile Sticky Compact Header */}
+        <div className="sm:hidden flex-shrink-0 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e] px-3.5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2.5">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="min-w-0">
+              <h2 className="text-lg font-heading font-bold text-[#e5b83b] truncate leading-tight">
+                {advance.nameRu}
+              </h2>
+              {advance.nameEn && (
+                <span className="text-[10px] font-heading tracking-widest text-[#959085] uppercase block truncate">
+                  {advance.nameEn}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full bg-black/50 hover:bg-[#780016] text-[#e0dacf] transition-colors border border-[#3d2b0e] flex-shrink-0"
+              title="Закрыть"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            {tabItems.map(tab => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSelect(tab.id)}
+                  className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
+                    isSelected
+                      ? tab.id === 'abilities'
+                        ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
+                        : 'bg-[#c59b27] text-black shadow'
+                      : 'text-[#959085] bg-[#161822] hover:text-[#e0dacf]'
+                  }`}
+                >
+                  {tab.mobileLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Top Header Banner (hidden on mobile < sm) */}
+        <div className="hidden sm:block relative flex-shrink-0 p-6 sm:p-8 bg-gradient-to-r from-[#290710] via-[#1a121e] to-[#11131a] border-b border-[#3d2b0e]">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-[#780016] text-[#e0dacf] transition-colors border border-[#3d2b0e]"
@@ -124,38 +181,61 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
             </div>
           </div>
 
-          {/* Navigation Bar inside modal */}
+          {/* Navigation Bar inside desktop modal */}
           <div className="mt-6 pt-4 border-t border-[#312517] flex gap-2">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
-                activeTab === 'overview'
-                  ? 'bg-[#c59b27] text-black shadow'
-                  : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
-              }`}
-            >
-              1. Обзор и Требования
-            </button>
-            <button
-              onClick={() => setActiveTab('abilities')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
-                activeTab === 'abilities'
-                  ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
-                  : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
-              }`}
-            >
-              2. Древо Способностей ({abilities.length})
-            </button>
+            {tabItems.map(tab => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSelect(tab.id)}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-heading font-semibold transition-colors ${
+                    isSelected
+                      ? tab.id === 'abilities'
+                        ? 'bg-[#780016] text-white shadow border border-[#c59b27]'
+                        : 'bg-[#c59b27] text-black shadow'
+                      : 'text-[#959085] hover:text-[#e0dacf] hover:bg-[#1f2230]'
+                  }`}
+                >
+                  {tab.desktopLabel}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-6 sm:p-8 space-y-6">
+        <div ref={bodyScrollRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8 space-y-5 sm:space-y-6">
           {/* TAB 1: OVERVIEW & REQUIREMENTS */}
           {activeTab === 'overview' && (
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
+              {/* Mobile-only Scrollable Profile Banner (portrait + quote) */}
+              {(advance.image || advance.quote) && (
+                <div className="sm:hidden pb-4 border-b border-[#252838] flex items-start gap-3.5">
+                  {advance.image && (
+                    <div className="w-20 h-28 rounded-xl overflow-hidden border-2 border-[#c59b27] shadow-xl flex-shrink-0 bg-black">
+                      <img
+                        src={advance.image}
+                        alt={advance.nameRu}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  {advance.quote && (
+                    <p className="flex-1 text-sm text-[#f5efe3] font-flavor italic border-l-2 border-[#780016] pl-2.5 leading-snug">
+                      {advance.quote}
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Mandatory Requirement Box */}
-              <div className="bg-[#151722] p-5 rounded-2xl border border-[#2b3347] space-y-2">
+              <div className="bg-[#151722] p-4 sm:p-5 rounded-2xl border border-[#2b3347] space-y-2">
                 <h4 className="text-xs font-heading font-bold text-[#e5b83b] uppercase tracking-wider flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-[#c59b27]" />
                   Требование для вступления
@@ -167,7 +247,7 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
 
               {/* Mandatory Refresh Box */}
               {advance.refresh && (
-                <div className="bg-[#1e1317] p-5 rounded-2xl border border-[#521c27] flex items-start gap-3.5">
+                <div className="bg-[#1e1317] p-4 sm:p-5 rounded-2xl border border-[#521c27] flex items-start gap-3.5">
                   <Heart className="text-[#e64c65] mt-1 flex-shrink-0" size={20} />
                   <div className="space-y-1">
                     <h4 className="text-xs font-heading font-bold text-[#e64c65] uppercase tracking-wider">
@@ -182,7 +262,7 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
 
               {/* Organization & Lore Description */}
               {advance.description && (
-                <div className="bg-[#151722] p-5 rounded-2xl border border-[#262c3e] space-y-3">
+                <div className="bg-[#151722] p-4 sm:p-5 rounded-2xl border border-[#262c3e] space-y-3">
                   <h4 className="text-xs font-heading font-bold text-[#c59b27] uppercase tracking-wider flex items-center gap-2">
                     <BookOpen size={16} className="text-[#c59b27]" />
                     О фракции и продвижении
@@ -194,10 +274,10 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
               )}
 
               {/* Quick Action to Abilities Tree */}
-              <div className="pt-2 flex justify-end">
+              <div className="pt-1 flex justify-end">
                 <button
-                  onClick={() => setActiveTab('abilities')}
-                  className="px-5 py-2.5 rounded-xl bg-[#251017] hover:bg-[#780016] text-[#f0cb78] hover:text-white border border-[#780016] text-xs font-heading font-semibold uppercase tracking-wider flex items-center gap-2 transition-all shadow-md"
+                  onClick={() => handleTabSelect('abilities')}
+                  className="px-5 py-2.5 rounded-xl bg-[#251017] hover:bg-[#780016] text-[#f0cb78] hover:text-white border border-[#780016] text-xs font-heading font-semibold uppercase tracking-wider flex items-center gap-2 transition-colors shadow-md"
                 >
                   <span>Изучить все {abilities.length} способностей</span>
                   <ChevronRight size={16} />
@@ -238,7 +318,7 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
                   {filteredAbilities.map(ab => (
                     <div
                       key={ab.id}
-                      className="p-5 rounded-2xl bg-[#161824] border border-[#262c3e] hover:border-[#5e4713] transition-all flex flex-col justify-between space-y-3"
+                      className="p-4 sm:p-5 rounded-2xl bg-[#161824] border border-[#262c3e] hover:border-[#5e4713] transition-colors flex flex-col justify-between space-y-3"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-2">
@@ -279,10 +359,10 @@ export const ExtraAdvanceModal: React.FC<ExtraAdvanceModalProps> = ({ advance, o
         </div>
 
         {/* Footer matching ClassModal */}
-        <div className="p-4 bg-[#0d0e14] border-t border-[#262a3a] flex justify-end">
+        <div className="flex-shrink-0 p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#0d0e14] border-t border-[#262a3a] flex justify-end">
           <button
             onClick={onClose}
-            className="px-6 py-2 rounded-xl bg-[#252938] hover:bg-[#780016] text-[#e0dacf] text-xs font-heading font-semibold tracking-wider uppercase transition-colors"
+            className="px-5 sm:px-6 py-2 rounded-xl bg-[#252938] hover:bg-[#780016] text-[#e0dacf] text-xs font-heading font-semibold tracking-wider uppercase transition-colors"
           >
             Закрыть продвижение
           </button>
